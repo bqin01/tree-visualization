@@ -1,0 +1,23 @@
+#notif-centre-box
+{
+  width: 1000px;
+  height: 300px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: -500px;
+  margin-top: -150px;
+  border-radius: 30px;
+  border: 5px solid rgb(50,220,115);
+  background-color: rgba(50, 220, 115, 0.3);
+}
+#notif-centre-box h1
+{
+  margin: 50px auto;
+  text-align: center;
+}
+#notif-centre-box p
+{
+  font-size: 24px;
+  margin: 10px 100px;
+}
