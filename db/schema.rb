@@ -10,16 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_06_033502) do
+ActiveRecord::Schema.define(version: 2019_05_29_143941) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "trees", force: :cascade do |t|
-    t.string "tree_str", null: false
+    t.integer "user_id", null: false
+    t.string "id_str", null: false
     t.integer "time_active", null: false
-    t.string "tree_name", default: "Unnamed Tree"
-    t.jsonb "branches_and_roots", default: "{}", null: false
+    t.string "name", default: "Unnamed Tree"
+    t.json "branches_and_roots", default: "{}", null: false
+    t.boolean "is_private", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
-  
+
+  create_table "users", force: :cascade do |t|
+    t.string "username", null: false
+    t.string "password_salt_enc", null: false
+    t.string "salt", null: false
+    t.string "username_hash", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
 end

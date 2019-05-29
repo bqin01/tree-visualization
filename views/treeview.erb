@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script type="text/javascript" src="/scripts/filebuttons.js"></script>
+    <script type="text/javascript" src="/scripts/accountbuttons.js"></script>
+  </head>
+  <body>
+    <div id = "navbar">
+      <div id = "nav-tweak"> <!-- Make it accessible for all devices. -->
+        <div id = "tree-info">
+          <h3 id = "tree-info-title"><%= @the_tree!=nil ? @the_tree.name : "No Tree"%></h3>
+          <p id = "tree-info-creator"><%= @tree_owner!=nil ? @tree_owner.username : "No Owner" %></p>
+        </div>
+        <div id = "tree-settings">
+          <div class = "button-and-dropdown">
+            <button onclick = "loadDropdown(this)" id = "file-button" data-dropdown = "file-dropdown">File</button>
+            <ul id = "file-dropdown">
+              <li id = 'new-tree-button'><p>New Tree</p></li>
+              <li id = 'load-tree-button'><p>Load/Import Tree</p></li>
+              <li><p>Save Tree Locally</p></li>
+              <li><p>Export Tree</p></li>
+              <li><p style = "color: red;">Delete Tree</p></li>
+            </ul>
+          </div>
+          <div class = "button-and-dropdown">
+            <button onclick = "loadDropdown(this)" id = "views-button" data-dropdown = "views-dropdown">Views</button>
+            <ul id = "views-dropdown">
+              <li><p>Zoom In</p></li>
+              <li><p>Zoom Out</p></li>
+              <li><p>Hide/Show Toolbar</p></li>
+            </ul>
+          </div>
+          <div class = "button-and-dropdown">
+            <button onclick = "loadDropdown(this)" id = "update-button" data-dropdown = "update-dropdown">Update</button>
+            <ul id = "update-dropdown">
+              <li><p>Elem 1</p></li>
+              <li><p>Elem 2</p></li>
+              <li><p>Elem 3</p></li>
+            </ul>
+          </div>
+          <div class = "button-and-dropdown">
+            <button onclick = "loadDropdown(this)" id = "config-button" data-dropdown = "config-dropdown">Config</button>
+            <ul id = "config-dropdown">
+              <li><p>Elem 1</p></li>
+              <li><p>Elem 2</p></li>
+              <li><p>Elem 3</p></li>
+            </ul>
+          </div>
+          <div class = "button-and-dropdown">
+            <button onclick = "loadDropdown(this)" id = "account-button" data-dropdown = "account-dropdown">Account</button>
+            <ul id = "account-dropdown">
+              <li id = 'signup-button'><p>Sign Up</p></li>
+              <li id = 'login-button'><p>Login</p></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id = "treebox">
+      <% if @the_tree == nil %>
+        <h1> You currently aren't viewing a tree or the tree you are looking for does not exist. Create or load one! </h1>
+      <% else %>
+        <% if @the_tree.is_private == true && @tree_owner.username_hash != cookies[:activeuser] %>
+          <h1> The tree you are trying to view has been marked private by its owner. </h1>
+        <% else %>
+          <%
+            require 'json'
+            branches = @the_tree.branches_and_roots['branches']
+          %>
+          <svg width = "100%" height = "100%">
+            <% branches.each do |branch| %>
+              <% arr = branch['branch'] %>
+              <line x1 = "<%= arr[0] %>%" y1 = "<%= arr[1] %>%" x2 = "<%= arr[2] %>%" y2 = "<%= arr[3] %>%" style = "stroke:rgb(0,0,0);stroke-width:3px;" />
+            <% end %>
+          </svg>
+        <% end %>
+      <% end %>
+    </div>
+    <div id = "greybox"> <!-- All the pop-up boxes upon clicking. -->
+      <div id = "newtreebox" class = "notifbox">
+        <h1>Create Tree</h1>
+        <% @cuser = User.find_by(username_hash: cookies[:activeuser]) %>
+        <% if @cuser == nil %>
+          <h2> You're not logged in, so you can't create a tree! </h2>
+        <% else %>
+          <form action='/tree/new' method='post'>
+            <p>Tree Name:
+            <input type='text' name='newtreename' id='newtreename'/>
+            </p>
+            <ul>
+              <label class='radio'>
+                <input type='radio' name='access' value='private'/>
+                Private <!-- Capitalize every first letter in a word -->
+              </label>
+              <label class = 'radio'>
+                <input type='radio' name='access' value='public'/>
+                Public
+              </label>
+            </ul>
+            <button type='submit' class='confirm-button'><p>Create Tree!</p></button>
+          </form>
+        <% end %>
+      </div>
+      <div id = "loadtreebox" class = "notifbox">
+        <h1>Load Tree</h1>
+        <% @cuser = User.find_by(username_hash: cookies[:activeuser]) %>
+        <% if @cuser == nil %>
+            <h2> You're not logged in, so you can't load a tree! </h2>
+        <% else %>
+            <ul>
+              <% @cuser.tree.each do |t| %>
+                <li><a href = '/tree/<%=t.id_str%>'><%=t.name%></a></li>
+              <% end %>
+            </ul>
+        <% end %>
+      </div>
+      <div id = "signupbox" class = "notifbox">
+        <h1>Sign Up</h1>
+        <form action='/user/new' method='post'>
+          <p>Username:
+          <input type='text' name='username' id='newtreename'/>
+          </p>
+          <p>Password:
+          <input type="password" name='password' id='newtreename'/>
+          </p>
+          <button type='submit' class='confirm-button'><p>Sign Up!</p></button>
+        </form>
+      </div>
+      <div id = "loginbox" class = "notifbox">
+        <h1>Login/Logout</h1>
+        <% @cuser = User.find_by(username_hash: cookies[:activeuser]) %>
+        <% if @cuser == nil %>
+          <form action='/login' method='post'>
+            <p>Username:
+            <input type='text' name='username'/>
+            </p>
+            <p>Password:
+            <input type="password" name='password' id = 'password'/>
+            </p>
+            <button type='submit' class='confirm-button'><p>Login!</p></button>
+          </form>
+        <% else %>
+          <h2> You're currently logged in as <%= @cuser.username %>. </h2>
+          <button class = 'confirm-button' onclick = 'window.location.href = "/logout"'><p>Logout</p></button>
+        <% end %>
+      </div>
+    </div>
+    <script>
+      $(document).click(function(event){
+        $target = $(event.target);
+        if($('#greybox').css("display") != "none"){
+          var allboxes = $("#greybox").children();
+          for(var i = 0; i < allboxes.length; i++){
+            if($(allboxes[i]).css("display") != "none" && !$target.closest(allboxes[i]).length){
+              $('#greybox').css("display","none");
+              $(allboxes[i]).css("display","none");
+            }
+          }
+        }
+        if($('#new-tree-button').css("visibility") != "hidden" && $target.closest('#new-tree-button').length){
+          newtree();
+        }
+        if($('#load-tree-button').css("visibility") != "hidden" && $target.closest('#load-tree-button').length){
+          loadtree();
+        }
+        if($('#signup-button').css("visibility") != "hidden" && $target.closest('#signup-button').length){
+          signup();
+        }
+        if($('#login-button').css("visibility") != "hidden" && $target.closest('#login-button').length){
+          login();
+        }
+        if(!$target.closest('#file-button').length && $('#file-dropdown').is(":visible")){
+          $('#file-dropdown').css("visibility","hidden");
+        }
+        if(!$target.closest('#views-button').length && $('#views-dropdown').is(":visible")){
+          $('#views-dropdown').css("visibility","hidden");
+        }
+        if(!$target.closest('#update-button').length && $('#update-dropdown').is(":visible")){
+          $('#update-dropdown').css("visibility","hidden");
+        }
+        if(!$target.closest('#config-button').length && $('#config-dropdown').is(":visible")){
+          $('#config-dropdown').css("visibility","hidden");
+        }
+        if(!$target.closest('#account-button').length && $('#account-dropdown').is(":visible")){
+          $('#account-dropdown').css("visibility","hidden");
+        }
+      });
+    </script>
+  </body>
+</html>

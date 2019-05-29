@@ -1,4 +1,3 @@
 class User < ActiveRecord::Base
-  has_many :user_trees
-  has_many :trees, :through => :user_trees
+  has_many :tree, foreign_key: 'user_id'
 end

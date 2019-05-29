@@ -2,3 +2,4 @@
 
 # A scary one-liner.
 Tree.all.delete_all
+User.all.delete_all

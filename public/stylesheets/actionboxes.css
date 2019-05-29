@@ -1,0 +1,47 @@
+#greybox{
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-color: #000000BB;
+  display: none;
+}
+.notifbox
+{
+  position: absolute;
+  width: 800px;
+  padding: 50px 30px;
+  border: 10px solid black;
+  border-radius: 20px;
+  background-color: rgba(155, 237, 180);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  display: none;
+}
+.notifbox h1
+{
+  text-align: center;
+}
+form
+{
+  text-align: center;
+  font-family: Dustismo, sans-serif;
+}
+button
+{
+  font-family: Dustismo, sans-serif;
+}
+.confirm-button
+{
+  border: 5px solid black;
+  border-radius: 5px;
+  background-color: rgba(155, 237, 180);
+  width: 150px;
+  height: 50px;
+  margin: 30px auto 15px auto;
+}

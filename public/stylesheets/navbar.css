@@ -46,6 +46,7 @@
 }
 .button-and-dropdown ul
 {
+  visibility: hidden;
   padding-inline-start: 0px;
   margin: 0px;
   background-color: rgb(200,200,200);
@@ -55,7 +56,7 @@
 {
   list-style: none;
   background-color: rgb(230,230,230);
-  width: 130%;
+  width: 150%;
   height: 40px;
   text-align: center;
   position: relative;

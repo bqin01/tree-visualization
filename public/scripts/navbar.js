@@ -11,3 +11,5 @@ function unloadDropdown(element){
   const dropDown = document.getElementById(dropDownID);
   dropDown.style.visibility = 'hidden';
 }
+
+// My app focuses on tree visualizations through 
