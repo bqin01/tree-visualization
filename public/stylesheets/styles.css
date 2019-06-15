@@ -9,13 +9,36 @@ html
 }
 body
 {
+  height: 100%;
   margin: 0px;
+}
+#mainscreen
+{
+  display: table;
+  width: 100%;
   height: 100%;
 }
 #treebox
 {
+  display: table-row;
+}
+#navbar + #treebox
+{
+  height: 100%;
+}
+#treebox
+{
+  text-align: center;
   width: 100%;
   height: 100%;
   margin: 0px;
-  padding: 20px;
+}
+#treebox h1
+{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
 }

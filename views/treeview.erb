@@ -6,76 +6,79 @@
     <script type="text/javascript" src="/scripts/accountbuttons.js"></script>
   </head>
   <body>
-    <div id = "navbar">
-      <div id = "nav-tweak"> <!-- Make it accessible for all devices. -->
-        <div id = "tree-info">
-          <h3 id = "tree-info-title"><%= @the_tree!=nil ? @the_tree.name : "No Tree"%></h3>
-          <p id = "tree-info-creator"><%= @tree_owner!=nil ? @tree_owner.username : "No Owner" %></p>
-        </div>
-        <div id = "tree-settings">
-          <div class = "button-and-dropdown">
-            <button onclick = "loadDropdown(this)" id = "file-button" data-dropdown = "file-dropdown">File</button>
-            <ul id = "file-dropdown">
-              <li id = 'new-tree-button'><p>New Tree</p></li>
-              <li id = 'load-tree-button'><p>Load/Import Tree</p></li>
-              <li><p>Save Tree Locally</p></li>
-              <li><p>Export Tree</p></li>
-              <li><p style = "color: red;">Delete Tree</p></li>
-            </ul>
+    <div id = "mainscreen">
+      <div id = "navbar">
+        <div id = "nav-tweak"> <!-- Make it accessible for all devices. -->
+          <div id = "tree-info">
+            <h3 id = "tree-info-title"><%= @the_tree!=nil ? @the_tree.name : "No Tree"%></h3>
+            <p id = "tree-info-creator"><%= @tree_owner!=nil ? @tree_owner.username : "No Owner" %></p>
           </div>
-          <div class = "button-and-dropdown">
-            <button onclick = "loadDropdown(this)" id = "views-button" data-dropdown = "views-dropdown">Views</button>
-            <ul id = "views-dropdown">
-              <li><p>Zoom In</p></li>
-              <li><p>Zoom Out</p></li>
-              <li><p>Hide/Show Toolbar</p></li>
-            </ul>
-          </div>
-          <div class = "button-and-dropdown">
-            <button onclick = "loadDropdown(this)" id = "update-button" data-dropdown = "update-dropdown">Update</button>
-            <ul id = "update-dropdown">
-              <li><p>Elem 1</p></li>
-              <li><p>Elem 2</p></li>
-              <li><p>Elem 3</p></li>
-            </ul>
-          </div>
-          <div class = "button-and-dropdown">
-            <button onclick = "loadDropdown(this)" id = "config-button" data-dropdown = "config-dropdown">Config</button>
-            <ul id = "config-dropdown">
-              <li><p>Elem 1</p></li>
-              <li><p>Elem 2</p></li>
-              <li><p>Elem 3</p></li>
-            </ul>
-          </div>
-          <div class = "button-and-dropdown">
-            <button onclick = "loadDropdown(this)" id = "account-button" data-dropdown = "account-dropdown">Account</button>
-            <ul id = "account-dropdown">
-              <li id = 'signup-button'><p>Sign Up</p></li>
-              <li id = 'login-button'><p>Login</p></li>
-            </ul>
+          <div id = "tree-settings" style: "z-index: 1;">
+            <div class = "button-and-dropdown">
+              <% @cuser = User.find_by(username_hash: cookies[:activeuser]) %>
+              <button onclick = "loadDropdown(this)" id = "file-button" data-dropdown = "file-dropdown" <%= @cuser==nil && @the_tree==nil ? "disabled" : "" %> >File</button>
+              <ul id = "file-dropdown">
+                <li id = 'new-tree-button'><p>New Tree</p></li>
+                <li id = 'load-tree-button'><p>Load/Import Tree</p></li>
+                <li><p>Save Tree Locally</p></li>
+                <li><p>Export Tree</p></li>
+                <li id = 'delete-tree-button'><p style = "color: red;">Delete Tree</p></li>
+              </ul>
+            </div>
+            <div class = "button-and-dropdown">
+              <button onclick = "loadDropdown(this)" id = "views-button" data-dropdown = "views-dropdown" <%= @the_tree==nil ? "disabled" : "" %>>Views</button>
+              <ul id = "views-dropdown">
+                <li><p>Zoom In</p></li>
+                <li><p>Zoom Out</p></li>
+                <li><p>Hide/Show Toolbar</p></li>
+              </ul>
+            </div>
+            <div class = "button-and-dropdown">
+              <button onclick = "loadDropdown(this)" id = "update-button" data-dropdown = "update-dropdown" <%= @the_tree==nil ? "disabled" : "" %> >Update</button>
+              <ul id = "update-dropdown">
+                <li><p>Elem 1</p></li>
+                <li><p>Elem 2</p></li>
+                <li><p>Elem 3</p></li>
+              </ul>
+            </div>
+            <div class = "button-and-dropdown">
+              <button onclick = "loadDropdown(this)" id = "config-button" data-dropdown = "config-dropdown" <%= @the_tree==nil ? "disabled" : "" %> >Config</button>
+              <ul id = "config-dropdown">
+                <li><p>Elem 1</p></li>
+                <li><p>Elem 2</p></li>
+                <li><p>Elem 3</p></li>
+              </ul>
+            </div>
+            <div class = "button-and-dropdown">
+              <button onclick = "loadDropdown(this)" id = "account-button" data-dropdown = "account-dropdown">Account</button>
+              <ul id = "account-dropdown">
+                <li id = 'signup-button'><p>Sign Up</p></li>
+                <li id = 'login-button'><p><%= @cuser == nil ? "Login" : "Logout" %></p></li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <div id = "treebox">
-      <% if @the_tree == nil %>
-        <h1> You currently aren't viewing a tree or the tree you are looking for does not exist. Create or load one! </h1>
-      <% else %>
-        <% if @the_tree.is_private == true && @tree_owner.username_hash != cookies[:activeuser] %>
-          <h1> The tree you are trying to view has been marked private by its owner. </h1>
+      <div id = "treebox">
+        <% if @the_tree == nil %>
+          <h1> You currently aren't viewing a tree or the tree you are looking for does not exist.<br><br>Create or load one! </h1>
         <% else %>
-          <%
-            require 'json'
-            branches = @the_tree.branches_and_roots['branches']
-          %>
-          <svg width = "100%" height = "100%">
-            <% branches.each do |branch| %>
-              <% arr = branch['branch'] %>
-              <line x1 = "<%= arr[0] %>%" y1 = "<%= arr[1] %>%" x2 = "<%= arr[2] %>%" y2 = "<%= arr[3] %>%" style = "stroke:rgb(0,0,0);stroke-width:3px;" />
-            <% end %>
-          </svg>
+          <% if @the_tree.is_private == true && @tree_owner.username_hash != cookies[:activeuser] %>
+            <h1> The tree you are trying to view has been marked private by its owner. </h1>
+          <% else %>
+            <%
+              require 'json'
+              branches = @the_tree.branches_and_roots['branches']
+            %>
+            <svg width = "100%" height = "100%">
+              <% branches.each do |branch| %>
+                <% arr = branch['branch'] %>
+                <line x1 = "<%= arr[0] %>%" y1 = "<%= arr[1] %>%" x2 = "<%= arr[2] %>%" y2 = "<%= arr[3] %>%" style = "stroke:rgb(0,0,0);stroke-width:3px;" />
+              <% end %>
+            </svg>
+          <% end %>
         <% end %>
-      <% end %>
+      </div>
     </div>
     <div id = "greybox"> <!-- All the pop-up boxes upon clicking. -->
       <div id = "newtreebox" class = "notifbox">
@@ -110,9 +113,24 @@
         <% else %>
             <ul>
               <% @cuser.tree.each do |t| %>
-                <li><a href = '/tree/<%=t.id_str%>'><%=t.name%></a></li>
+                <li><a href = '/tree/<%=t.id_str%>'><%=t.name%></a> (<%= (t.is_private==true)?"Private":"Public" %>)</li>
               <% end %>
             </ul>
+        <% end %>
+      </div>
+      <div id = "deletetreebox" class = "notifbox">
+        <h1>Delete Tree</h1>
+        <% if @the_tree == nil %>
+            <h2> You're not viewing a tree, so you can't delete it! </h2>
+        <% else %>
+          <% if @tree_owner.username_hash != cookies[:activeuser] %>
+            <h2> You can't delete a tree that doesn't belong to you! </h2>
+          <% else %>
+            <h2> Are you absolutely sure you want to delete your tree? </h2>
+            <form action = '/deletetree' method='destroy'>
+              <button type = 'submit' class = 'confirm-button' style = 'background-color: red;' onclick = 'deleteSecurity(); window.location.href = "/deletetree";'><p>Delete It!</p></button>
+            </form>
+          <% end %>
         <% end %>
       </div>
       <div id = "signupbox" class = "notifbox">
@@ -163,6 +181,9 @@
         }
         if($('#load-tree-button').css("visibility") != "hidden" && $target.closest('#load-tree-button').length){
           loadtree();
+        }
+        if($('#delete-tree-button').css("visibility") != "hidden" && $target.closest('#delete-tree-button').length){
+          deletetree();
         }
         if($('#signup-button').css("visibility") != "hidden" && $target.closest('#signup-button').length){
           signup();

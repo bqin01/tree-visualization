@@ -2,13 +2,13 @@
 {
   margin: -25px -20px;
   width: 102%;
-  height: 75px;
+  display: table-row;
   background-color: rgba(155, 237, 180);
 }
 #nav-tweak
 {
-  padding: 17px 0px 0px 15px;
-  height: 78%;
+  padding: 0px 0px 0px 15px;
+  height: 50px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -88,4 +88,8 @@
 #tree-settings .button-and-dropdown button:hover
 {
   background-color: rgb(60, 179, 97);
+}
+#tree-settings .button-and-dropdown button[disabled]:hover
+{
+  background-color: rgba(155, 237, 180);
 }

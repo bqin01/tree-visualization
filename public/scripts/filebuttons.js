@@ -6,3 +6,7 @@ function loadtree(){
       $('#greybox').css("display","block");
       $('#loadtreebox').css("display","block");
 }
+function deletetree(){
+      $('#greybox').css("display","block");
+      $('#deletetreebox').css("display","block");
+}

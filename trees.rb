@@ -37,7 +37,7 @@ class Appl < Sinatra::Base
       erb :loginfail
     end
     @access = params[:access]
-    @access ||= 'private'
+    @access ||= 'public'
     @name = params[:newtreename]
     @name ||= 'Untitled Tree'
     tree_str = SecureRandom.uuid # Generate a uniquely universal identifier for the tree
@@ -56,7 +56,7 @@ class Appl < Sinatra::Base
   post '/user/new' do
     @the_tree = nil
     newsalt = SecureRandom.hex
-    @newuser = User.create(username: params['username'], username_hash: Digest::SHA256.hexdigest(params['username']), salt: newsalt, password_salt_enc: Digest::SHA256.hexdigest(params['password']) + newsalt, user_id: SecureRandom.random_number(10000000))
+    @newuser = User.create(username: params['username'], username_hash: Digest::SHA256.hexdigest(params['username']), salt: newsalt, password_salt_enc: @encpassword, user_id: SecureRandom.random_number(10000000))
     cookies[:activeuser] = Digest::SHA256.hexdigest(params['username'])
     erb :treeview
   end
@@ -66,17 +66,20 @@ class Appl < Sinatra::Base
   end
   post '/login' do
     attemptuser = params['username']
-    attemptpass = params['password'] # very aware of the security vulnerability here, but I've yet to figure out how it works on Ruby.
+    attemptpass = @encpassword # very aware of the security vulnerability here, but I've yet to figure out how it works on Ruby.
     user = User.find_by(username_hash: Digest::SHA256.hexdigest(attemptuser));
     if user == nil
       erb :invalidcreds
     else
-      if user.password_salt_enc != Digest::SHA256.hexdigest(attemptpass) + newsalt
+      if user.password_salt_enc != attemptpass
         erb :invalidcreds
       else
         cookies[:activeuser] = Digest::SHA256.hexdigest(attemptuser)
         erb :login
       end
     end
+  end
+  delete '/deletetree' do
+    :treeview
   end
 end
