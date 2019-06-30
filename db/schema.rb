@@ -18,6 +18,7 @@ ActiveRecord::Schema.define(version: 2019_05_29_143941) do
   create_table "trees", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "id_str", null: false
+    t.string "priv_key", null: false
     t.integer "time_active", null: false
     t.string "name", default: "Unnamed Tree"
     t.json "branches_and_roots", default: "{}", null: false

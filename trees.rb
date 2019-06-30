@@ -50,13 +50,12 @@ class Appl < Sinatra::Base
     end
     new_json = new_json + ']}'
     puts(new_json)
-    @the_tree = @tree_owner.tree.create(is_private: (@access == 'private')?true:false, name: @name, branches_and_roots: JSON.parse(new_json), id_str: tree_str, time_active: 0)
+    @the_tree = @tree_owner.tree.create(is_private: (@access == 'private')?true:false, name: @name, branches_and_roots: JSON.parse(new_json), id_str: tree_str, time_active: 0, priv_key: SecureRandom.hex)
     erb :treeview
   end
   post '/user/new' do
-    @the_tree = nil
     newsalt = SecureRandom.hex
-    @newuser = User.create(username: params['username'], username_hash: Digest::SHA256.hexdigest(params['username']), salt: newsalt, password_salt_enc: @encpassword, user_id: SecureRandom.random_number(10000000))
+    @newuser = User.create(username: params['username'], username_hash: Digest::SHA256.hexdigest(params['username']), salt: newsalt, password_salt_enc: Digest::SHA256.hexdigest(params['password']) + newsalt, user_id: SecureRandom.random_number(10000000))
     cookies[:activeuser] = Digest::SHA256.hexdigest(params['username'])
     erb :treeview
   end
@@ -66,12 +65,12 @@ class Appl < Sinatra::Base
   end
   post '/login' do
     attemptuser = params['username']
-    attemptpass = @encpassword # very aware of the security vulnerability here, but I've yet to figure out how it works on Ruby.
-    user = User.find_by(username_hash: Digest::SHA256.hexdigest(attemptuser));
+    attemptpass = params['password']
+    user = User.find_by(username_hash: Digest::SHA256.hexdigest(attemptuser))
     if user == nil
       erb :invalidcreds
     else
-      if user.password_salt_enc != attemptpass
+      if user.password_salt_enc != (Digest::SHA256.hexdigest(attemptpass) + user.salt)
         erb :invalidcreds
       else
         cookies[:activeuser] = Digest::SHA256.hexdigest(attemptuser)
@@ -79,7 +78,19 @@ class Appl < Sinatra::Base
       end
     end
   end
-  delete '/deletetree' do
-    :treeview
+  get '/deletetree' do
+    userdelete = User.find_by(username_hash: cookies[:activeuser])
+    treedelete = @the_tree
+    if treedelete == nil
+        erb :deletefail
+    else
+      treeuser = treedelete.user
+      if treeuser == userdelete
+        Tree.destroy_all(priv_key: @the_tree.priv_key)
+        erb :treeview
+      else
+        erb :deletefail
+      end
+    end
   end
 end

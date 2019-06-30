@@ -107,13 +107,16 @@
       </div>
       <div id = "loadtreebox" class = "notifbox">
         <h1>Load Tree</h1>
-        <% @cuser = User.find_by(username_hash: cookies[:activeuser]) %>
-        <% if @cuser == nil %>
+        <% cuser = User.find_by(username_hash: cookies[:activeuser]) %>
+        <% if cuser == nil %>
             <h2> You're not logged in, so you can't load a tree! </h2>
         <% else %>
             <ul>
-              <% @cuser.tree.each do |t| %>
+              <% cuser.tree.each do |t| %>
                 <li><a href = '/tree/<%=t.id_str%>'><%=t.name%></a> (<%= (t.is_private==true)?"Private":"Public" %>)</li>
+              <% end %>
+              <% if cuser.tree.size == 0 %>
+                <h2>You don't have any trees, so you'll have to make a new one.</h2>
               <% end %>
             </ul>
         <% end %>
@@ -128,7 +131,7 @@
           <% else %>
             <h2> Are you absolutely sure you want to delete your tree? </h2>
             <form action = '/deletetree' method='destroy'>
-              <button type = 'submit' class = 'confirm-button' style = 'background-color: red;' onclick = 'deleteSecurity(); window.location.href = "/deletetree";'><p>Delete It!</p></button>
+              <button type = 'submit' class = 'confirm-button' style = 'background-color: red;' onclick = 'window.location.href = "/deletetree";'><p>Delete It!</p></button>
             </form>
           <% end %>
         <% end %>
