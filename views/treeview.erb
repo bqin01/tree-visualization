@@ -66,14 +66,49 @@
           <% if @the_tree.is_private == true && @tree_owner.username_hash != cookies[:activeuser] %>
             <h1> The tree you are trying to view has been marked private by its owner. </h1>
           <% else %>
-            <%
-              require 'json'
-              branches = @the_tree.branches_and_roots['branches']
-            %>
-            <svg width = "100%" height = "100%">
+          <%
+            require 'json'
+            branches = @the_tree.branch.all
+            Line = Struct.new(:x1,:y1,:x2,:y2)
+            @branchinfo = Array.new(10000)
+
+            def compStartPoint(branch_id, factor)
+              theline = compBranchInfo(branch_id)
+              thepoint = Array.new(2)
+              thepoint[0] = (1-factor)*(theline.x1) + (factor)*(theline.x2)
+              thepoint[1] = (1-factor)*(theline.y1) + (factor)*(theline.y2)
+              return thepoint
+            end
+
+            def compBranchInfo(branch_id)
+              if @branchinfo[branch_id] != nil
+                return @branchinfo[branch_id]
+              end
+              thebranch = @the_tree.branch.find_by(branch_id: branch_id)
+              if thebranch == nil
+                return nil
+              end
+              startpoint = nil
+              if thebranch.parent_id == -1
+                startpoint = Array.new(2)
+                startpoint[0] = 400
+                startpoint[1] = 600
+              else
+                startpoint = compStartPoint(thebranch.parent_id, thebranch.factor)
+              end
+              len = thebranch.length
+              delx = len * Math.sin(thebranch.sumdevx10 * Math::PI / 1800.0)
+              dely = -len * Math.cos(thebranch.sumdevx10 * Math::PI / 1800.0)
+              result_line = Line.new(startpoint[0],startpoint[1],startpoint[0]+delx,startpoint[1]+dely);
+              @branchinfo[branch_id] = result_line
+              return result_line
+            end
+          %>
+            <svg width = "800px" height = "600px" id = "tree">
+              <% branchlist =  %>
               <% branches.each do |branch| %>
-                <% arr = branch['branch'] %>
-                <line x1 = "<%= arr[0] %>%" y1 = "<%= arr[1] %>%" x2 = "<%= arr[2] %>%" y2 = "<%= arr[3] %>%" style = "stroke:rgb(0,0,0);stroke-width:3px;" />
+                <% line = compBranchInfo(branch.branch_id) %>
+                <line x1 = "<%= line.x1 %>" y1 = "<%= line.y1 %>" x2 = "<%= line.x2 %>" y2 = "<%= line.y2 %>" style = "stroke:#654321;stroke-width:5px;" />
               <% end %>
             </svg>
           <% end %>
@@ -101,6 +136,7 @@
                 Public
               </label>
             </ul>
+            <input type='hidden' name = 'resubmitcheck' value='ok'/>
             <button type='submit' class='confirm-button'><p>Create Tree!</p></button>
           </form>
         <% end %>
@@ -131,7 +167,7 @@
           <% else %>
             <h2> Are you absolutely sure you want to delete your tree? </h2>
             <form action = '/deletetree' method='destroy'>
-              <button type = 'submit' class = 'confirm-button' style = 'background-color: red;' onclick = 'window.location.href = "/deletetree";'><p>Delete It!</p></button>
+              <button class = 'confirm-button' style = 'background-color: red;' onclick = 'window.location.href = "/deletetree";'><p>Delete It!</p></button>
             </form>
           <% end %>
         <% end %>

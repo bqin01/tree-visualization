@@ -10,10 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_29_143941) do
+ActiveRecord::Schema.define(version: 2019_11_25_234929) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "branches", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "branch_id", null: false
+    t.integer "age", null: false
+    t.integer "parent_id", null: false
+    t.integer "anglex10", default: 0, null: false
+    t.float "length", null: false
+    t.integer "sumdevx10", null: false
+    t.float "factor", null: false
+  end
 
   create_table "trees", force: :cascade do |t|
     t.integer "user_id", null: false
@@ -21,7 +32,6 @@ ActiveRecord::Schema.define(version: 2019_05_29_143941) do
     t.string "priv_key", null: false
     t.integer "time_active", null: false
     t.string "name", default: "Unnamed Tree"
-    t.json "branches_and_roots", default: "{}", null: false
     t.boolean "is_private", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

@@ -4,6 +4,7 @@ require 'digest'
 require 'sinatra/activerecord'
 require './models/tree.rb'
 require './models/user.rb'
+require './models/branch.rb'
 require 'securerandom'
 require 'json'
 
@@ -21,6 +22,7 @@ class Appl < Sinatra::Base
     erb :index
   end
   get '/tree/:treestr' do
+    @are_you_ok = nil
     if params[:treestr] != 'new'
       @the_tree = Tree.find_by(id_str: params[:treestr])
       if @the_tree == nil
@@ -33,35 +35,57 @@ class Appl < Sinatra::Base
   end
   post '/tree/new' do
     @tree_owner = User.find_by(username_hash: cookies[:activeuser])
-    if @tree_owner == nil
-      erb :loginfail
+    if params[:resubmitcheck] != 'ok' || @are_you_ok == false
+      @are_you_ok = false
+    else
+      @are_you_ok = true
     end
-    @access = params[:access]
-    @access ||= 'public'
-    @name = params[:newtreename]
-    @name ||= 'Untitled Tree'
-    tree_str = SecureRandom.uuid # Generate a uniquely universal identifier for the tree
-    new_json = '{"branches": ['
-    for x in 0..50
-      if x != 0
-        new_json = new_json + ','
+    if @are_you_ok == false || @tree_owner == nil
+      erb :waitwhat
+    else
+      params[:resubmitcheck] = 'notok'
+      access = params[:access]
+      access ||= 'public'
+      @name = params[:newtreename]
+      if @name == "" || @name == nil
+        @name = 'Untitled Tree'
       end
-      new_json = new_json + '{' + generate_random_line() + '}'
+      anytree = @tree_owner.tree.find_by(name: @name)
+      if @name != 'Untitled Tree' && anytree != nil
+        erb :duptree
+      else
+        tree_str = SecureRandom.uuid # Generate a uniquely universal identifier for the tree
+
+        @the_tree = @tree_owner.tree.create(is_private: (access == 'private')?true:false, name: @name, id_str: tree_str, time_active: 0, priv_key: SecureRandom.hex)
+        @the_tree.branch.create(branch_id: 0, age: 0, parent_id: -1, anglex10: 0, factor: 0.0, sumdevx10: 0, length: 25.0)
+        erb :newtree
+      end
     end
-    new_json = new_json + ']}'
-    puts(new_json)
-    @the_tree = @tree_owner.tree.create(is_private: (@access == 'private')?true:false, name: @name, branches_and_roots: JSON.parse(new_json), id_str: tree_str, time_active: 0, priv_key: SecureRandom.hex)
-    erb :treeview
   end
   post '/user/new' do
     newsalt = SecureRandom.hex
-    @newuser = User.create(username: params['username'], username_hash: Digest::SHA256.hexdigest(params['username']), salt: newsalt, password_salt_enc: Digest::SHA256.hexdigest(params['password']) + newsalt, user_id: SecureRandom.random_number(10000000))
-    cookies[:activeuser] = Digest::SHA256.hexdigest(params['username'])
-    erb :treeview
+    if params['username'] == nil || params['password'] == nil
+      erb :waitwhat
+    else
+      existuser = User.find_by(username: params['username'])
+      if existuser != nil
+        erb :dupuser
+      else
+        @newuser = User.create(username: params['username'], username_hash: Digest::SHA256.hexdigest(params['username']), salt: newsalt, password_salt_enc: Digest::SHA256.hexdigest(params['password']) + newsalt, user_id: SecureRandom.random_number(10000000))
+        cookies[:activeuser] = Digest::SHA256.hexdigest(params['username'])
+        params['username'] = nil
+        params['password'] = nil
+        erb :newuser
+      end
+    end
   end
   get '/logout' do
-    cookies[:activeuser] = nil
-    erb :logout
+    if cookies[:activeuser] == nil
+      erb :logoutfail
+    else
+      cookies[:activeuser] = nil
+      erb :logout
+    end
   end
   post '/login' do
     attemptuser = params['username']
@@ -74,6 +98,7 @@ class Appl < Sinatra::Base
         erb :invalidcreds
       else
         cookies[:activeuser] = Digest::SHA256.hexdigest(attemptuser)
+        @tree_owner = user
         erb :login
       end
     end
@@ -84,8 +109,7 @@ class Appl < Sinatra::Base
     if treedelete == nil
         erb :deletefail
     else
-      treeuser = treedelete.user
-      if treeuser == userdelete
+      if @the_tree.user == userdelete
         Tree.destroy_all(priv_key: @the_tree.priv_key)
         erb :treeview
       else

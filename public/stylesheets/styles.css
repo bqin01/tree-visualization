@@ -33,6 +33,12 @@ body
   height: 100%;
   margin: 0px;
 }
+#tree
+{
+  margin-top: 20px;
+  border: solid black 5px;
+  border-radius: 5px;
+}
 #treebox h1
 {
   position: absolute;

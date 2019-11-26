@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/errorpage.css"/>
+  </head>
+  <body>
+    <% if @are_you_ok == true %>
+      <div class = "centre-box">
+        <h1>Tree Created Successfully!</h1>
+        <p>Your tree, <%= @the_tree.name %>, has been created.</p>
+        <p><a href = "/tree/<%= @the_tree.id_str %>">View The Tree</a>.</p>
+        <p><a href = '/'>Return to Homepage</a>.</p>
+      </div>
+    <% else %>
+      <div class = "centre-box">
+        <h1>Wait, what?</h1>
+        <p>You're seeing this page likely because you tried to go back to a page that requires form resubmission, or something went really wrong on our side.</p>
+        <p><a href = '/'>Return to Homepage</a>.</p>
+      </div>
+    <% end %>
+    <%
+      @are_you_ok = false
+      @the_tree = nil
+      @access = nil
+      @name = nil
+      @tree_owner = nil
+    %>
+  </body>
+</html>
