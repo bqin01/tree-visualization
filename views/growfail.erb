@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/errorpage.css"/>
+  </head>
+  <body>
+    <div class = "centre-box">
+      <h1>Could not grow tree...</h1>
+      <h2>There a multitude of reasons why we could not grow your tree.</h2>
+      <ul>
+        <li>You tried to grow a tree that doesn't exist.</li>
+        <li>You tried to grow a tree that isn't yours.</li>
+        <li>You tried to grow a tree by an amount not between 1 and 999 days, inclusive.</li>
+        <li>There is an uncaught bug with tree growing.</li>
+      </ul>
+      <p><a href = '/tree/<%=@tree_str%>'>Return to Tree</a>.</p>
+      <p><a href = '/'>Return to Homepage</a>.</p>
+    </div>
+  </body>
+</html>

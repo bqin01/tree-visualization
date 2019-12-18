@@ -15,6 +15,7 @@ GEM
     arel (9.0.0)
     backports (3.15.0)
     concurrent-ruby (1.1.5)
+    distribution (0.7.3)
     i18n (1.6.0)
       concurrent-ruby (~> 1.0)
     json (2.2.0)
@@ -51,6 +52,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord
+  distribution
   json
   pg
   rake

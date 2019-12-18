@@ -6,15 +6,10 @@ require './models/tree.rb'
 require './models/user.rb'
 require './models/branch.rb'
 require 'securerandom'
+require './treegrowth.rb'
 require 'json'
 
 set :database_file, 'config/database.yml'
-
-def generate_random_line()
-  String result = '"branch": '
-  result = result + 4.times.map{Random.rand(101)}.to_s
-  return result
-end
 
 class Appl < Sinatra::Base
   helpers Sinatra::Cookies
@@ -57,7 +52,7 @@ class Appl < Sinatra::Base
         tree_str = SecureRandom.uuid # Generate a uniquely universal identifier for the tree
 
         @the_tree = @tree_owner.tree.create(is_private: (access == 'private')?true:false, name: @name, id_str: tree_str, time_active: 0, priv_key: SecureRandom.hex)
-        @the_tree.branch.create(branch_id: 0, age: 0, parent_id: -1, anglex10: 0, factor: 0.0, sumdevx10: 0, length: 25.0)
+        @the_tree.branch.create(branch_id: 0, age: 0, parent_id: -1, anglex10: 0, factor: 0.0, sumdevx10: 0, length: 25.0, time_since_last_split: 0)
         erb :newtree
       end
     end
@@ -103,14 +98,30 @@ class Appl < Sinatra::Base
       end
     end
   end
-  get '/deletetree' do
-    userdelete = User.find_by(username_hash: cookies[:activeuser])
-    treedelete = @the_tree
+  post '/grow/:treestr' do
+    curtree = Tree.find_by(id_str: params[:treestr])
+    growamt = (params['numdays']).to_i
+    if curtree == nil || growamt == nil || growamt < 1 || growamt > 999 || curtree.user.username_hash != cookies[:activeuser]
+      erb :growfail
+    else
+      for i in 1..growamt do
+        grow_tree(curtree)
+      end
+      params['numdays'] = 0
+      @the_tree = curtree
+      @tree_owner = curtree.user
+      erb :treeview
+    end
+  end
+  get '/delete/:treestr' do
+    treedelete = Tree.find_by(id_str: params[:treestr])
     if treedelete == nil
         erb :deletefail
     else
-      if @the_tree.user == userdelete
-        Tree.destroy_all(priv_key: @the_tree.priv_key)
+      if treedelete.user.username_hash == cookies[:activeuser]
+        Tree.where(priv_key: treedelete.priv_key).destroy_all
+        @the_tree = nil
+        @tree_owner = nil
         erb :treeview
       else
         erb :deletefail

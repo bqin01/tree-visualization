@@ -4,6 +4,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <script type="text/javascript" src="/scripts/filebuttons.js"></script>
     <script type="text/javascript" src="/scripts/accountbuttons.js"></script>
+    <script type="text/javascript" src="/scripts/updatetree.js"></script>
   </head>
   <body>
     <div id = "mainscreen">
@@ -36,8 +37,8 @@
             <div class = "button-and-dropdown">
               <button onclick = "loadDropdown(this)" id = "update-button" data-dropdown = "update-dropdown" <%= @the_tree==nil ? "disabled" : "" %> >Update</button>
               <ul id = "update-dropdown">
-                <li><p>Elem 1</p></li>
-                <li><p>Elem 2</p></li>
+                <li id = 'tree-forward-button'><p>Go Forward</p></li>
+                <li id = 'tree-stats-button'><p>Tree Statistics</p></li>
                 <li><p>Elem 3</p></li>
               </ul>
             </div>
@@ -166,8 +167,8 @@
             <h2> You can't delete a tree that doesn't belong to you! </h2>
           <% else %>
             <h2> Are you absolutely sure you want to delete your tree? </h2>
-            <form action = '/deletetree' method='destroy'>
-              <button class = 'confirm-button' style = 'background-color: red;' onclick = 'window.location.href = "/deletetree";'><p>Delete It!</p></button>
+            <form action = '/delete/<%=@the_tree.id_str%>' method='destroy'>
+              <button class = 'confirm-button' style = 'background-color: red;' onclick = 'window.location.href = "/delete/<%=@the_tree.id_str%>";'><p>Delete It!</p></button>
             </form>
           <% end %>
         <% end %>
@@ -202,6 +203,26 @@
           <button class = 'confirm-button' onclick = 'window.location.href = "/logout"'><p>Logout</p></button>
         <% end %>
       </div>
+      <div id = "treegrowthbox" class = "notifbox">
+        <h1>Tree Growing</h1>
+        <% if @tree_owner == nil || @the_tree == nil %>
+          <h2>You're not viewing a tree, so you can't make it grow.</h2>
+        <% else %>
+          <% if @tree_owner.username_hash != cookies[:activeuser] %>
+            <h2> You shouldn't tamper with a tree that isn't yours. </h2>
+          <% else %>
+            <h2> Select how many days you want to accelerate your tree by. </h2>
+            <form action = '/grow/<%=@the_tree.id_str%>' method = 'post'>
+              <div id = "treegrowthnumholder">
+                <p>Maximum of 999</p>
+                <input type="number" name="numdays" min="1" max="999">
+                <p>Minimum of 1</p>
+              </div>
+              <button type='submit' class='confirm-button'><p>Grow Tree</p></button>
+            </form>
+          <% end %>
+        <% end %>
+      </div>
     </div>
     <script>
       $(document).click(function(event){
@@ -229,6 +250,9 @@
         }
         if($('#login-button').css("visibility") != "hidden" && $target.closest('#login-button').length){
           login();
+        }
+        if($('#tree-forward-button').css("visibility") != "hidden" && $target.closest('#tree-forward-button').length){
+          treegrowth();
         }
         if(!$target.closest('#file-button').length && $('#file-dropdown').is(":visible")){
           $('#file-dropdown').css("visibility","hidden");
