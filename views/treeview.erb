@@ -70,7 +70,19 @@
           <%
             require 'json'
             branches = @the_tree.branch.all
-            Line = Struct.new(:x1,:y1,:x2,:y2)
+            class Line
+              attr_reader :x1
+              attr_reader :x2
+              attr_reader :y1
+              attr_reader :y2
+              def initialize(ax1, ay1, ax2, ay2)
+                @x1 = ax1
+                @x2 = ax2
+                @y1 = ay1
+                @y2 = ay2
+              end
+            end
+
             @branchinfo = Array.new(10000)
 
             def compStartPoint(branch_id, factor)
@@ -106,7 +118,6 @@
             end
           %>
             <svg width = "800px" height = "600px" id = "tree">
-              <% branchlist =  %>
               <% branches.each do |branch| %>
                 <% line = compBranchInfo(branch.branch_id) %>
                 <line x1 = "<%= line.x1 %>" y1 = "<%= line.y1 %>" x2 = "<%= line.x2 %>" y2 = "<%= line.y2 %>" style = "stroke:#654321;stroke-width:5px;" />
