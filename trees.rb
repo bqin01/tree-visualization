@@ -24,6 +24,38 @@ class Line
   end
 end
 
+def compStartPoint(branch_id, factor)
+  theline = compBranchInfo(branch_id)
+  thepoint = Array.new(2)
+  thepoint[0] = (1-factor)*(theline.x1) + (factor)*(theline.x2)
+  thepoint[1] = (1-factor)*(theline.y1) + (factor)*(theline.y2)
+  return thepoint
+end
+
+def compBranchInfo(branch_id)
+  if @branchinfo[branch_id] != nil
+    return @branchinfo[branch_id]
+  end
+  thebranch = @the_tree.branch.find_by(branch_id: branch_id)
+  if thebranch == nil
+    return nil
+  end
+  startpoint = nil
+  if thebranch.parent_id == -1
+    startpoint = Array.new(2)
+    startpoint[0] = 400
+    startpoint[1] = 600
+  else
+    startpoint = compStartPoint(thebranch.parent_id, thebranch.factor)
+  end
+  len = thebranch.length
+  delx = len * Math.sin(thebranch.sumdevx10 * Math::PI / 1800.0)
+  dely = -len * Math.cos(thebranch.sumdevx10 * Math::PI / 1800.0)
+  result_line = Line.new(startpoint[0],startpoint[1],startpoint[0]+delx,startpoint[1]+dely);
+  @branchinfo[branch_id] = result_line
+  return result_line
+end
+
 class Appl < Sinatra::Base
   helpers Sinatra::Cookies
   get '/' do
