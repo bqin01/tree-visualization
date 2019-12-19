@@ -11,6 +11,19 @@ require 'json'
 
 set :database_file, 'config/database.yml'
 
+class Line
+  attr_reader :x1
+  attr_reader :x2
+  attr_reader :y1
+  attr_reader :y2
+  def initialize(ax1, ay1, ax2, ay2)
+    @x1 = ax1
+    @x2 = ax2
+    @y1 = ay1
+    @y2 = ay2
+  end
+end
+
 class Appl < Sinatra::Base
   helpers Sinatra::Cookies
   get '/' do
