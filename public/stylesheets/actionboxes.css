@@ -23,7 +23,7 @@
   -webkit-transform: translate(-50%, -50%);
   display: none;
 }
-.notifbox h1
+.notifbox h1, h2
 {
   text-align: center;
 }
@@ -38,9 +38,9 @@ button
 }
 .confirm-button
 {
-  border: 5px solid black;
+  border: 3px solid black;
   border-radius: 5px;
-  background-color: rgba(155, 237, 180);
+  background-color: rgb(155, 237, 180);
   width: 150px;
   height: 50px;
   margin: 30px auto 15px auto;

@@ -3,7 +3,7 @@
   margin: -25px -20px;
   width: 102%;
   display: table-row;
-  background-color: rgba(155, 237, 180);
+  background-color: rgb(155, 237, 180);
 }
 #nav-tweak
 {
@@ -63,7 +63,7 @@
 }
 .button-and-dropdown ul li:hover
 {
-  background-color: rgba(155, 237, 180);
+  background-color: rgb(155, 237, 180);
 }
 .button-and-dropdown ul li p
 {
@@ -77,7 +77,7 @@
 #tree-settings .button-and-dropdown button
 {
   font-family: Dustismo, sans-serif;
-  background-color: rgba(155, 237, 180);
+  background-color: rgb(155, 237, 180);
   font-size: 20px;
   border: 0px;
   height: 100%;
@@ -91,5 +91,5 @@
 }
 #tree-settings .button-and-dropdown button[disabled]:hover
 {
-  background-color: rgba(155, 237, 180);
+  background-color: rgb(155, 237, 180);
 }

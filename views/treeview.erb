@@ -21,17 +21,12 @@
               <ul id = "file-dropdown">
                 <li id = 'new-tree-button'><p>New Tree</p></li>
                 <li id = 'load-tree-button'><p>Load/Import Tree</p></li>
-                <li><p>Save Tree Locally</p></li>
-                <li><p>Export Tree</p></li>
                 <li id = 'delete-tree-button'><p style = "color: red;">Delete Tree</p></li>
               </ul>
             </div>
             <div class = "button-and-dropdown">
-              <button onclick = "loadDropdown(this)" id = "views-button" data-dropdown = "views-dropdown" <%= @the_tree==nil ? "disabled" : "" %>>Views</button>
+              <button onclick = "loadDropdown(this)" id = "views-button" data-dropdown = "views-dropdown" <%= "disabled" %>>Views</button>
               <ul id = "views-dropdown">
-                <li><p>Zoom In</p></li>
-                <li><p>Zoom Out</p></li>
-                <li><p>Hide/Show Toolbar</p></li>
               </ul>
             </div>
             <div class = "button-and-dropdown">
@@ -39,11 +34,10 @@
               <ul id = "update-dropdown">
                 <li id = 'tree-forward-button'><p>Go Forward</p></li>
                 <li id = 'tree-stats-button'><p>Tree Statistics</p></li>
-                <li><p>Elem 3</p></li>
               </ul>
             </div>
             <div class = "button-and-dropdown">
-              <button onclick = "loadDropdown(this)" id = "config-button" data-dropdown = "config-dropdown" <%= @the_tree==nil ? "disabled" : "" %> >Config</button>
+              <button onclick = "loadDropdown(this)" id = "config-button" data-dropdown = "config-dropdown" <%= "disabled" %> >Config</button>
               <ul id = "config-dropdown">
                 <li><p>Elem 1</p></li>
                 <li><p>Elem 2</p></li>

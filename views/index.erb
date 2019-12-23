@@ -2,8 +2,19 @@
 <html>
   <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/index.css"/>
   </head>
   <body>
-    <h1><a href = "/tree/1">Straight to Tree View!</a></h1>
+    <div class = "notifbox" style = "display: block;">
+      <h1>Tree Visualization Project</h1>
+      <h2>A Work in Progress, created by Bill Qin</h2>
+      <div class = "button-holder">
+        <button id = "begin-growing" onclick = "window.location.href = '/tree/1'"><h1>Begin Growing!</h1></button>
+        <div class = "non-start-buttons">
+          <button id = "github-button" onclick = "window.location.href = 'https://github.com/bqin01/tree-visualization'"><p>Github Repository</p></button>
+          <button id = "writeup-button" onclick = ""><p>How-to-use and Logistics (coming soon)</p></button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
