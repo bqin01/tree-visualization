@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/stylesheets/howto.css"/>
+  </head>
+  <body>
+    <div id = "howtobox">
+      <div class = "home-button-holder">
+        <button class = "home-button" style = "margin-bottom:30px;" onclick = "window.location.href = '/'">Home</button>
+      </div>
+      <p><i>This page is generated automatically from the README file of this project, found on this project's <a href = 'https://www.github.com/bqin01/tree-visualization'>Github Repo</a>.</i></p>
+      <%= glorify @howtomd %>
+      <div class = "home-button-holder">
+        <button class = "home-button" style = "margin-top:30px;" onclick = "window.location.href = '/'">Home</button>
+      </div>
+    </div>
+  </body>
+</html>

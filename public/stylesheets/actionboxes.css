@@ -15,7 +15,7 @@
   padding: 50px 30px;
   border: 10px solid black;
   border-radius: 20px;
-  background-color: rgba(155, 237, 180);
+  background-color: rgb(155, 237, 180);
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);

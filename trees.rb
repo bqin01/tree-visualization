@@ -8,6 +8,7 @@ require './models/branch.rb'
 require 'securerandom'
 require './treegrowth.rb'
 require 'json'
+require 'glorify'
 
 set :database_file, 'config/database.yml'
 
@@ -57,9 +58,14 @@ def compBranchInfo(branch_id)
 end
 
 class Appl < Sinatra::Base
+  register Sinatra::Glorify
   helpers Sinatra::Cookies
   get '/' do
     erb :index
+  end
+  get '/howto' do
+    @howtomd = File.open("./README.md","rb").read
+    erb :howto
   end
   get '/tree/:treestr' do
     @are_you_ok = nil
@@ -68,7 +74,7 @@ class Appl < Sinatra::Base
       if @the_tree == nil
         @tree_owner = nil
       else
-        @tree_owner = @the_tree.user;
+        @tree_owner = @the_tree.user
       end
       erb :treeview
     end

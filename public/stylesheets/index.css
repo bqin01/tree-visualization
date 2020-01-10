@@ -10,14 +10,9 @@
   margin-bottom: 20px;
 }
 
-#begin-growing:hover
-{
-  background-color: #CCCCCC;
-}
-
 .button-holder
 {
-  margin-top: 50px;
+  margin-top: 50px 16px 5px 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -26,6 +21,7 @@
 #github-button, #writeup-button
 {
   padding: 5px 15px;
+  margin: 0 8px;
   border: 3px solid black;
   border-radius: 5px;
   background-color: white;
@@ -34,7 +30,8 @@
   -webkit-transition-duration: 0.3s;
 }
 
-#github-button:hover
+
+#github-button:hover, #writeup-button:hover, #begin-growing:hover
 {
   background-color: #CCCCCC;
 }
