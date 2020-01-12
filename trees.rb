@@ -117,7 +117,7 @@ class Appl < Sinatra::Base
       if existuser != nil
         erb :dupuser
       else
-        @newuser = User.create(username: params['username'], username_hash: Digest::SHA256.hexdigest(params['username']), salt: newsalt, password_salt_enc: Digest::SHA256.hexdigest(params['password']) + newsalt, user_id: SecureRandom.random_number(10000000))
+        @newuser = User.create(username: params['username'], username_hash: Digest::SHA256.hexdigest(params['username']), salt: newsalt, password_salt_enc: Digest::SHA256.hexdigest(params['password'] + newsalt), user_id: SecureRandom.random_number(10000000))
         cookies[:activeuser] = Digest::SHA256.hexdigest(params['username'])
         params['username'] = nil
         params['password'] = nil
@@ -140,7 +140,7 @@ class Appl < Sinatra::Base
     if user == nil
       erb :invalidcreds
     else
-      if user.password_salt_enc != (Digest::SHA256.hexdigest(attemptpass) + user.salt)
+      if user.password_salt_enc != (Digest::SHA256.hexdigest(attemptpass + user.salt))
         erb :invalidcreds
       else
         cookies[:activeuser] = Digest::SHA256.hexdigest(attemptuser)
