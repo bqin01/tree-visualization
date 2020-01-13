@@ -1,31 +1,78 @@
-% !TEX root = ./main.tex
-
-\documentclass[openany]{book}
-\usepackage[utf8]{inputenc}
-\usepackage{hyperref}
+\documentclass{article}
+\usepackage{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{ragged2e}
 \usepackage{colonequals}
 \usepackage{marginnote}
 \usepackage[colorinlistoftodos]{todonotes}
-\usepackage[left=1in,right=1in, marginparwidth=1.25in, marginparsep=1in]{geometry}
+\usepackage[left=1in,right=1in, marginparwidth=1in, marginparsep=1in]{geometry}
 \usepackage{natbib}
 \usepackage{graphicx}
 \usepackage{amsmath,amssymb}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{fdsymbol}
+\captionsetup{justification=centering}
 
-\title{Tree Visualization}
-\author{Bill Qin}
-\date{Last Updated on December 25, 2019}
+\usepackage{hyperref}
 
+\hypersetup{
+    colorlinks=true,
+    linkcolor=purple,
+    urlcolor=blue
+}
+\title{Tree Visualization: The Math, The Biology, The CS}
+\author{Bill Z. Qin}
+\date{Last Updated on January 13, 2020}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+\renewcommand{\baselinestretch}{1.05}
 
 \begin{document}
 
 \maketitle
+\textit{This document is a supplement to Bill Z. Qin's \href{https://treevis.herokuapp.com}{Tree Visualization} project. This document is \textbf{not a guide} on how to use the app. If you would like a guide, please visit the project's \href{https://www.github.com/bqin01/tree-visualization}{Github Repository} or navigate to the \href{https://treevis.herokuapp.com/howto}{guide page directly on the app}.}
+
+\textit{This document, while not of the most scholarly kind, is also not a cakewalk. There will be mathematics, statistics, and computer science that cater towards the average college student. If you feel unable or do not want to understand this content, you may find this document boring, confusing, and/or frustrating. If you are unsure about your readiness for this document, check out the \hyperlink{concepts}{Critical Concepts} section for a comprehensive list of technical concepts used in this project.}
+
+Modelling trees is no simple task. Apart from creating a suitable UI and full-stack application, the growth and managing of trees becomes an increasingly difficult task. This document will outline the mathematics and strategies used to model trees and their components in this project. It is important to note that as the project undergoes further development that these strategies will inevitably change and improve and that this document will reflect such changes. On the other hand, the mathematics and strategies presented may not be the most efficient and may sometimes be serving as placeholders until a breakthrough is made in that area of the project.
+
+\bigskip \bigskip
+\toprule
 
 \tableofcontents
 
-\chapter{How-to Use}
+\break
 
-\section{Long Title}
+\section{Appetizers}
 
+\input{appetizers.tex}
+
+\break
+
+\section{Data Management}
+
+\input{datamanagement.tex}
+
+\break
+
+\section{Growth of Trees}
+
+\input{growth.tex}
+
+\break
+
+\section{Displaying Trees}
+
+\input{display.tex}
+
+\break
+
+\hypertarget{others}{\section{Other and To-be-implemented}}
+
+\input{others.tex}
 \end{document}

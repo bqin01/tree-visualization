@@ -8,7 +8,11 @@
     <div class = "centre-box">
       <h1>Could Not Delete Tree</h1>
       <p>This error occurred because you either attempted to delete a tree that didn't exist or you tried to delete a tree that wasn't yours.</p>
-      <p><a href = 'javascript:history.go(-1)'>Return to Last Page Visited</a>.</p>
+      <% if @treedelete != nil %>
+        <p><a href = '/tree/<%=@treedelete.id_str%>'>Return to Tree</a>.</p>
+      <% else %>      
+        <p><a href = '/tree'>Return to Tree Growing</a>.</p>
+      <% end %>
       <p><a href = '/'>Return to Homepage</a>.</p>
     </div>
   </body>

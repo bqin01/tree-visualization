@@ -1,0 +1,64 @@
+\subsection{Improving Growth Complexity}
+
+As mentioned previously in this paper, it is possible to greatly reduce the time complexity of growing trees from $O(nx)$ to $O(n)$ amortized, where $n$ is the number of branches in a tree and $x$ is the number of days that it will grow by.
+
+The best way to describe this scenario is with an example. Suppose we have a tree with 4 branches (which must have IDs 0, 1, 2, and 3) and wish to grow the tree by 3 days. Currently, the algorithm will essentially call a \verb|grow_branch()| function like this:
+
+\centering
+\verb|grow_branch(0), grow_branch(1) ... grow_branch(3),|\\
+\verb|grow_branch(0), grow_branch(1) ... grow_branch(3),|\\
+\verb|grow_branch(0), grow_branch(1) ... grow_branch(3)|\\
+
+\medskip\justifying
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt} for a total of 12 calls. If a branch needs to split or offshoot, then more calls to \verb|grow_branch| appear. For example, if the first call of \verb|grow_branch(2)| causes a split and creates branches with ID 4 and 5, the call queue will now look like
+
+\centering
+\verb|grow_branch(3),|\\
+\verb|grow_branch(0), grow_branch(1) ... grow_branch(5),|\\
+\verb|grow_branch(0), grow_branch(1) ... grow_branch(5)|\\
+
+\medskip\justifying
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt} and will continue like this. However, there is a way to optimize it by adjusting our length/width increase methods and create a \verb|new_grow_branch| method that takes in both a branch argument and the number of days.
+
+\centering
+\verb|new_grow_branch(0,3),new_grow_branch(1,3)...new_grow_branch(3,3)|
+
+medskip\justifying
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt} This new method would lump the length/width increase method (which can easily be generalized to a multi-day algorithm) to only run once. The only issue now, however, is how to determine splitting/offshoots and \textbf{still know what day they occurred}. After all, if branch 2 split into ID 4 and 5 on day 1, it would require us to add \verb|new_grow_branch(4,2)| and \verb|new_grow_branch(5,2)| to the queue, but if it happened on day 2, it would require us to add the same thing with the second argument being 1. Fortunately, there exists a less-simple tweak (in theory, I haven't implemented it yet) that can more precisely use a probability distribution function to pinpoint an exact day even when computing in groups like this.
+
+Because these tweaked algorithms should have very similar runtimes to existing ones, it follows that this new algorithm would have run 6 times and the old one would have run 16 times. In theory, new branches will very rarely split, but it is still possible. So, in reality, this algorithm may actually be $O(n \cdot \alpha(nx) )$ amortized, where $\alpha$ is the inverse \href{https://en.wikipedia.org/wiki/Ackermann_function}{Ackermann function}.
+
+\subsection{Width of Branches}
+
+Currently, all branches have the same width, which of course isn't very realistic. In a future version, branches will be given a width and will appear as such in the application. Width will likely follow a similar schematic to length, albeit with different variables.
+
+\subsubsection{Da Vinci's Branching Rule}
+
+During the Italian Renaissance, Leonardo da Vinci once noted (without much rigor) that ``\textit{all the branches of a tree at every stage of its height when put together are equal in thickness to the trunk.}"
+
+Eventually, this was generalized to saying that when a parent branch split into two or more children branches, the sum of the surface areas of the children branches would equal to the surface area of the parent branch. In other words, given a parent branch $b$ with width $w$ that splits into children branches $b_1, b_2, \dots b_k$ with widths $w_1, w_2, \dots, w_k$ respectively for some $k \in \mathbb{N}^+$, it follows that
+
+$$w = \sqrt{\sum_{i=1}^k w_i^2}$$
+\centering Equation 5.1: Da Vinci's Generalized Branching Rule
+
+\medskip\justifying
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+which will, of course, prove extremely useful when width and splitting are implemented.
+
+\subsection{Offshoots v. Splitting: Is there a difference?}
+
+When a tree has an offshoot, there is a question to be asked: is the offshoot not just the result of the branch splitting into two, except that one of the resulting split branches simply has a deviation angle of nearly zero?
+
+This question may prove interesting and may greatly impact the future of this project. As of now, however, both will remain integral parts of the project.
+
+\subsection{The Leaf}
+
+In this document, we have left out a very essential part of many trees, and these are leaves. Leaves are produced on the end of many if not all branches that have either not split after the branch has reached just a few days old. At this time, I have left leaves out of the picture due to them likely being another model that needs to be added to the project.
+
+\subsection{Other Types of Trees}
+
+All information provided on tree growth has been targeted at very specific tree types: those found in many North American suburban streets, such as breeds of oak and maple. Other trees will have different properties, albeit being produced and structured in a similar manner to other trees (just with different variables). 

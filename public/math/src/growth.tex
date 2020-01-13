@@ -1,0 +1,71 @@
+Simulating how these trees will grow is arguably the most complex part of the project, as this involves developing an algorithm for tree growth that will result in believable trees while sustaining a sufficient amount of randomness so that every tree will grow differently. \textbf{The algorithm that stands is nowhere near perfect, and will change constantly. Furthermore, it is also incomplete at the moment.}
+
+The growth of trees, on paper, is very simple. Currently, the only way to grow a tree is by selecting some $x$ days to grow it, where $x \in \mathbb{Z}_{1000}^*$, or that $x$ is an integer ranging from 1 to 999, inclusive. The application then simply runs a function \verb|grow_tree()| on the tree $x$ number of times.
+
+We note that this is not the most efficient way to go about this task. As we will see in the upcoming subsection, \verb|grow_tree()| works by branch, simply iterating through branches. This proves to be a $O(nx)$ computation, where $n$ is the number of branches on the tree. This can be brought down to an amortized $O(n)$ operation, as will be shown in the \hyperlink{others}{Other and To-be-implemented} section.
+
+\subsection{Creation of Trees}
+
+As this project currently stands, when a tree is created, it will be generated with one single branch $b$. Branch $b$ will have a length of 5, an angle of 0, and will be situated so that it appears centered at the very bottom of the window.
+
+This will, of course, eventually be improved upon.
+
+\subsection{Branch-wise Growth}
+
+Upon calling $\verb|grow_tree()|$, the function will take every existing branch of the tree and increase its length. The function manages to target every branch because given any tree $t$, the IDs of the set of branches $B$ of $t$ are guaranteed to be the set $\{0,1,\dots,n-1\}$, where $n$ is the number of branches of $t$. This means we can perform a simple SQL query on all of these IDs within the tree $t$ to get its information and update it accordingly.
+
+\hypertarget{logistic}{To compute the new length of the tree, the application opts for a \textbf{logistic model with deviation}. The logistical model is commonly employed in biological and chemical simulations as a simple way to mimic cell birth and cell death in one neat and tidy formula.}
+
+$$l(t) = \frac{c(G)}{1+ae^{-bt}}$$
+\centering Equation 4.1: The Logistic Model
+
+\medskip\justifying
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+In our case, the variables are defined as such:
+\begin{itemize}
+    \item $t$ is the current day.
+    \item $l(t)$ is the length of the branch when it has age $t$.
+    \item $a$ is the scaling factor that dictates how fast a branch will grow and meet half its carrying capacity. We note that we can expect $l(t) = 0.5c$ at roughly $t = \frac{\ln(a)}{b}$.
+    \item $b$ is the growth factor that will also dictate how steeply the branch will grow, and is known as the \textbf{logistic growth rate}.
+    \item $c(G)$ is the carrying capacity of a branch, and $G$ is the generation of this branch. That is, the branch will never exceed a length of $c(G)$, and $\lim_{t \rightarrow \infty} l(t) = c(G)$.
+\end{itemize}
+
+These variables are tweaked constantly to best mimic tree growth, but will never be perfect. Furthermore, $c$ is currently based on the branch's generation, while $a$ and $b$ are constant throughout all trees and all branches.
+
+Of course, simply using the logistic model would give us the same lengths for branches of the same generation and the same age always. As such, the application employs this formula:
+
+$$l'(t) = l_0 + D(l(t)-l(t-1)) $$
+\centering Equation 4.2: The Logistic Model w/ Deviation
+
+\medskip\justifying
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{8pt}
+where
+\begin{itemize}
+    \item $t$ is the current day.
+    \item $l'(t)$ is the length of the branch when it has age $t$.
+    \item $l_0$ is the length of the branch before the day had started.
+    \item $l(t), l(t-1)$ are computed using \hyperlink{logistic}{the old logistic model}.
+    \item $D(x)$ is a zero-capped standard deviation function.
+\end{itemize}
+
+\subsubsection{Zero-capped Standard Deviation}
+
+Given some positive real $x$, the function $D(x)$ first picks a value $L$ from $\mathcal{N}(x,(Zx)^2)$ and then returns
+$$D(x) = \begin{cases}
+L & \text{if } l > 0 \\
+0 & \text{otherwise}
+\end{cases}$$
+
+where $\mathcal{N}(x,(Zx)^2)$ is the normal distribution with mean $x$ and standard deviation $Zx$, where $Z$ is a constant (much like $a$ and $b$, that is being tweaked to make tree growth as clean as possible). As a reminder, the normal distribution $\mathcal{N}(\mu,\sigma^2)$ has probability density
+$$f(x) = \frac{1}{\sigma\sqrt{2\pi}}e^{-0.5\left(\frac{x-\mu}{\sigma}\right)^2}$$
+for all $x \in \mathbb{R}$. In Ruby, we can pick from the normal distribution thanks to the \verb|Normal.rng| function found in the \verb|distribution| gem that specializes in all sorts of statistical distributions, which can be found \href{https://rubygems.org/gems/distribution}{here}.
+
+\subsection{Offshoots}
+
+To be completed soon. Stay tuned!
+
+\subsection{Splitting (*UNIMPLEMENTED*)}
+
+To be completed soon. Stay tuned!

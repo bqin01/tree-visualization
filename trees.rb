@@ -67,7 +67,21 @@ class Appl < Sinatra::Base
     @howtomd = File.open("./README.md","rb").read
     erb :howto
   end
+  get '/tree' do
+    @the_tree = nil
+    @tree_owner = nil
+    erb :treeview
+  end
+  get '/tree/' do
+    @the_tree = nil
+    @tree_owner = nil
+    erb :treeview
+  end
+  get '/technical.pdf' do
+    send_file("public/math/technical.pdf", opts = {:disposition => 'inline', :type => "application/pdf"})
+  end
   get '/tree/:treestr' do
+    @treedelete = nil
     @are_you_ok = nil
     if params[:treestr] != 'new'
       @the_tree = Tree.find_by(id_str: params[:treestr])
@@ -165,14 +179,15 @@ class Appl < Sinatra::Base
     end
   end
   get '/delete/:treestr' do
-    treedelete = Tree.find_by(id_str: params[:treestr])
-    if treedelete == nil
+    @treedelete = Tree.find_by(id_str: params[:treestr])
+    if @treedelete == nil
         erb :deletefail
     else
-      if treedelete.user.username_hash == cookies[:activeuser]
-        Tree.where(priv_key: treedelete.priv_key).destroy_all
+      if @treedelete.user.username_hash == cookies[:activeuser]
+        Tree.where(priv_key: @treedelete.priv_key).destroy_all
         @the_tree = nil
         @tree_owner = nil
+        @treedelete = nil
         erb :treeview
       else
         erb :deletefail

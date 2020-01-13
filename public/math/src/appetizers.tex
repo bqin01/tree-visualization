@@ -1,0 +1,77 @@
+Much like ordering an appetizer at a restaurant, it is by all means optional but may prove beneficial to read before the rest of the document.
+
+\subsection{Critical Concepts}
+
+As stated in the notice at the beginning of the document, this document is not a cakewalk. This is a (hopefully) comprehensive list of all the technical concepts that I employed while making this project. \textbf{You do not need to know all concepts listed here to view this document.}
+
+\begin{itemize}
+    \item Frontend App Development (written in ERB)
+    \begin{itemize}
+        \item HTML/CSS (though not explicitly mentioned)
+        \item Javascript (though not explicitly mentioned)
+        \item SVGs
+    \end{itemize}
+    \item Backend App Development (written in Ruby w/ Sinatra)
+    \begin{itemize}
+        \item Model-View-Controller Framework
+        \item Databases and SQL
+    \end{itemize}
+    \item Algorithm Development
+    \begin{itemize}
+        \item Recursion
+        \item Memoization
+        \item Simple Graph Theory
+        \item Complexity Theory and Notation (Big-O, Amortization)
+    \end{itemize}
+    \item Simple Statistical Distributions (normal distribution, uniform distribution)
+    \item Mathematics
+    \begin{itemize}
+        \item 2D Cartesian Geometry and Trigonometry
+        \item The Logistic Model of Cell Growth
+        \item Advanced Functions and Limits
+        \item Advanced Math Notation (Sums, Sets, etc.)
+        \item Probability Density Functions
+    \end{itemize}
+    \item Trees (I'm not sure what you'll understand if you don't know what trees look like)
+\end{itemize}
+
+\hypertarget{lingo}{\subsection{Lingo, Jargon, etc.}}
+
+This project involves the growing of trees, which are complicated. As such, it is important that we first develop some terminology that allow us to break down trees into more barebone components that will allow us to use mathematics and biology to understand.
+
+\textbf{Important Vocabulary:}
+\begin{itemize}
+    \item A \textbf{tree} is an entity, developed as a model in the application, that consists of many \textbf{branches}.
+    \begin{itemize}
+        \item Every tree keeps a record of how many branches it has through a \verb|last_branch_id|, which also serves as the identification for the next new branch introduced to the tree.
+
+        \item Every tree has an \textbf{age} associated with it, measured in days.
+
+        \item Every tree belongs to a \textbf{user} and only one user. A user may, of course, own multiple trees.
+    \end{itemize}
+
+    \item A \textbf{branch} is an entity, developed as a model in the application, that serves as the fundamental building block for all trees.
+
+    \begin{itemize}
+        \item Every branch has a specific \textbf{identification number} associated with it. Within a tree, this number will be unique to each branch, but will not necessarily be so across other trees.
+
+        \item Every branch also has an \textbf{age} associated with it, measured in days.
+
+        \item Every branch has a \textbf{length}, measured in pixels. \textbf{This unit of measurement will likely be changed in order to make the application's UI more stable on different window resolutions.}
+
+        \item (*UNIMPLEMENTED*) Every branch has a \textbf{width}, measured in pixels. \textbf{This unit of measurement will likely be changed in order to make the application's UI more stable on different window resolutions.}
+
+        \item Every branch, in the database, is given a \textbf{parent branch} (which can be NULL), a \textbf{position scalar} that ranges from the open/closed interval of real numbers (0,1], and an \textbf{angle of deviation}. Together, this allows the front-end to compute the exact position of every branch on the tree through trigonometry. For more information, see \hyperlink{branchpoints}{how we compute branch endpoints in the frontend}.
+
+        \item Every branch has a \textbf{generation}, which is a non-negative integer. The generation of a branch is 0 if it has no parent and is the generation of its parent branch plus 1 if it does have one.
+    \end{itemize}
+
+    \item During a \textbf{day}, every branch of the tree will grow a little, increasing in length and (*UNIMPLEMENTED*) width.
+    \begin{itemize}
+        \item Every branch $b$ has a chance (possibly zero) of producing an \textbf{offshoot}, which is a branch $b'$ that will have $b$ as its parent, with a certain minimum angle of deviation. Note that $b'$ will NOT grow on the day it was created, and will start the next day at age 0.
+
+        \item (*CURRENTLY UNIMPLEMENTED*) Every branch $b$ has a chance (possibly zero) of \textbf{splitting}. This will result in the creation of two branches $b_1$ and $b_2$ that will have $b$ as their parent and will have a position scalar of 1, while marking $b$ as having been split and thereby \textbf{unable to split again}. Similar to offshoots, $b_1$ and $b_2$ will NOT grow on the day they were created and will start the next day at age 0.
+    \end{itemize}
+
+    \item The \textbf{window} for the tree is a hard limit for all tree growth, and \textit{no tree can grow past it}. As the unit of measurement is still pixels, the window, too, is measured as a 800 pixel by 600 pixel range.
+\end{itemize}

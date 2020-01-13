@@ -37,4 +37,4 @@ When you create a tree, you will find it to be an uninteresting sapling. If you 
 
 ## Can I learn more about how these trees grow?
 
-Not yet! I am working on a document that will go deeper into the mathematics and logistics of tree growth. Stay tuned for more.
+Yes you can! I have created a PDF with big math equations and computer science concepts that you can find [here](https://treevis.herokuapp.com/writeup.pdf).

@@ -16,14 +16,16 @@ TREE_GROWTH_FAVOR_THRESHOLD = 1500
 # Model 2 for Tree Growth using cell growth using a logistic model
 # P(t) = c/(1+ae^{-bt})
 # where c = carrying capacity, a = scaling factor, b = growth factor/speed
+# ALWAYS ENSURE
+# Starting length = c/(1+a)
 
 LOG_MODEL_CARRYING_CAPACITY = 400 # times scale_base^generation, c value
 # Should hit 80% of this height after around 30 years of life
 LOG_MODEL_CARRYING_CAPACITY_SCALE_BASE = 0.6
-LOG_MODEL_SCALE_FACTOR = 150 # a value, very subject to change
+LOG_MODEL_SCALE_FACTOR = 79 # a value, very subject to change
 LOG_MODEL_GROWTH_FACTOR = 0.03 # b value, very subject to change
 
-LENGTH_STD_DEV_FACTOR = 0.01
+LENGTH_STD_DEV_FACTOR = 0.02
 # To make every tree different, the height addition will vary in a normal
 # distribution, with LENGTH_STD_DEV_FACTOR*{expected_length} as the deviation
 # where {expected_length} is computed above using the logistic model
@@ -160,12 +162,13 @@ def grow_tree(tree)
       newlen = len_expect(b.age,b.generation)
       curexp = len_expect(b.age-1, b.generation)
       curlen = b.length
-      normal_distrib = Distribution::Normal.rng(newlen, newlen*LENGTH_STD_DEV_FACTOR)
-      b.length = normal_distrib.call
-      if b.branch_id == 0
-        b.length = b.length + 25.0
+      enulens = [0, curexp-curlen]
+      normal_distrib = Distribution::Normal.rng((newlen-curexp), (newlen-curexp)*LENGTH_STD_DEV_FACTOR)
+      diff = normal_distrib.call
+      if diff > 0
+        b.length = curlen + diff
       end
-      # Outgrowth Mechanic
+      # Offshoot Mechanic
       if should_grow(b.time_since_last_split, TREE_GROWTH_AGE_MIN*(TREE_GROWTH_AGE_MIN_SCALE_BASE**b.generation), TREE_SPLIT_GROWTH_PROB_SCALING, TREE_SPLIT_GROWTH_RATE)
         b.time_since_last_split = 0
         is_left = true

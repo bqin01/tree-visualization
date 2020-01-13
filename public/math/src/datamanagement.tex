@@ -1,0 +1,37 @@
+With this much information, it is critical to think about how to store this information efficiently and effectively.
+
+\subsection{User Information}
+
+This classic feature of applications involves the storage of user information securely. Users are, of course, created as models (found on the Github Repository under \verb|/models/user.rb|). This application has opted to employ SHA256 encryption with salting as its method of security. This method of encryption may eventually be overhauled for a more powerful method using MD5 and private keys.
+
+\subsection{Trees}
+
+Trees are created as models (found on the Github Repository under \verb|/models/tree.rb|). Every tree then belongs to a user and contains many branches. There's nothing too notable about how trees are stored, except that they are identified through the usage of UUIDs, or Universally Unique IDs, that are near-guaranteed to be uniquely generated. This document will not go into UUIDs, but you can visit the \href{https://en.wikipedia.org/wiki/Universally_unique_identifier}{Wikipedia page on them} for more information.
+
+\subsection{Branches}
+
+In the initial state of the project, every tree had a \verb|branches_and_roots| JSON string attached to them, which would contain the information on all branches in order to initially test the front-end's capabilities. However, this method is inefficient both in memory and mutability, and was deprecated for also making branches also as models (found on the Github Repository under \verb|/models/branch.rb|).
+
+As noted earlier, branches store information such as their length, width, parent branch, etc. Apart from length and width, most of these variables will remain constant throughout a branch's lifetime. As such, these variables were selected to be stored under the branch model as opposed to simply recording the positions of the branches in 2D space, which may make computations far more tedious and take longer to compute.
+
+For example, suppose branch $a$ has child branch $b$. $a$ currently has length 30 and angle 0, where as branch $b$ has length 10, angle 30, and position scalar 0.6. This means that if we let branch $a$ start at (0,0) that $a$ becomes the branch $((0,0),(0,-30))$, which means that branch $b$ starts at $(0,-18)$, which means that branch $b$ becomes $((0,-18),(5,-18-5\sqrt{3}))$. We note the simplicity of calculating each branch's actual location from this information. If we move to the next day and branch $a$ grows 5, it follows that when computing $b$'s growth, we need only adjust the length of $b$ in the database, as $b$'s new location will simply be recomputed.
+
+If we had instead stored only the branches as $((0,0),(0,-30))$ and $((0,-18),(5,-18-5\sqrt{3}))$, it would be extremely tedious to recalculate $b$'s new location, as we would first have to recompute each length, then recalculate $b$'s starting point and performing the same computation as before.
+
+Regarding Table 1, we note that the number of computations that are required to load a tree and go forward 1 day both sum to approximately $50n$ computations. However, because you may grow trees by up to 999 days at a time, and you can only request to load a tree "once", it follows that the current memory model gives more consistent results and having a better worst-case scenario.
+
+\bigskip
+\begin{table}
+\begin{tabular}[t]{
+c c c
+}
+    \toprule
+     & Current Memory Model & Position Memory Model \\
+     \midrule
+     Load Tree & $\sim25n$ & $2n$ \\
+     Go Forward 1 Day & $\sim25n^*$  & $\sim48n^*$ \\
+     \bottomrule
+\end{tabular}
+\centering
+\caption{Computations required to perform operations on trees. \\Here, $n$ is the number of branches on the tree in question. \\\footnotesize{*: These values are amortized to include tree behaviour (i.e. splitting, offshoots).} }
+\end{table}

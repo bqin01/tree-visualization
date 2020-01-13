@@ -1,0 +1,44 @@
+When trees grow, they are stored and altered in the database, but a table with a bunch of numbers is not helpful to any user. Just as important is being able to display the information in the table in a meaningful way.
+
+\subsection{Implementation as SVG}
+
+SVGs, or Scalable Vector Graphics, is an image format that specializes in changing and animated 2D graphics, and has been selected as the way trees will be displayed for users.
+
+Every branch is represented as an SVG line on the canvas that holds the entire tree with some width and some endpoints within their canvas, and are colored the same color: a nice shade of brown with RGB value \verb|#654321|. As the project progresses, branches may take a different form and be displayed differently.
+
+\hypertarget{branchpoints}{\subsection{Branch Endpoints}}
+
+The width of the SVG line for a branch is currently very simple to find, it's currently constant and will eventually simply be a data point on every branch in the database. However, the more challenging part comes from locating the branch's endpoints. Fortunately, every branch, as you may recall, has been given a select number of variables as defined in the \hyperlink{lingo}{Lingo and Jargon section}, which will make this task all the more feasible.
+
+We first observe that if we know one endpoint, the length of the branch, and the angle at which the line must be drawn, it can be computed by way of trigonometry the second endpoint. Since the length of the branch is a data point on the branch, we need only compute the first endpoint and the angle.
+
+\subsubsection{The First Endpoint}
+
+Recall that branches have a ``position scalar" that ranges from the open/closed interval of real numbers (0,1]. This position scalar is given to a branch at birth and remains constant for every branch, and usually ranges from 0.3 to 0.7 (currently assigned to uniformly at random). This dictates where along its parent branch it branches off from.
+
+For some branch $b$, suppose it has scalar $k$. Now, suppose we know the endpoints of its parent branch to be $(x_1,y_1)$ and $(x_2,y_2)$ on the canvas. It follows that we can compute the first endpoint $(x,y)$ of the branch as
+
+$$(x,y) = \left(x_1k + y_1(1-k), x_2k + y_2(1-k)\right)$$
+
+Of course, this means we first have to compute the parent branch's endpoints. To alleviate this problem, the algorithm will run recursively and employ memoization, or storing previous answers, to complete the computation.
+
+\subsubsection{The Angle}
+
+The angle is actually far simpler to determine. We recall that every branch has an ``angle of deviation" from its parent branch. Using another recursive function, we can simply use the following function to compute the angle:
+
+$$f(id) = \begin{cases}
+    f(P(id)) + \theta_{id} & \text{if branch with this id has a parent} \\
+    0 & \text{otherwise (when id = 0 and the branch is the root)}
+\end{cases}$$
+
+where $\theta_{id}$ is the angle of deviation of the branch with that id and $P(id)$ is the ID of the parent of said branch. Once again, memoization is used to reduce the time complexity from $O(n \log n)$ to $O(n)$.
+
+\subsubsection{Finishing Up}
+
+Once you have the first endpoint $(x_1,y_1)$, the length $l$, and the angle $\theta$ of our branch, we can quickly compute the second endpoint $(x_2,y_2)$ through some trigonometry:
+
+$$(x_2,y_2) = (x_1 + l\sin(\theta),y_1+l\cos(\theta))$$
+
+Note that the $\sin(\theta)$ and $\cos(\theta)$ are flipped from the conventional use of polar coordinates because our 0 degree angle is actually pointing directly up, and our measurement of angle is clockwise.
+
+Once we have the two endpoints, we simply draw it in as an SVG, rinse and repeat for all branches!
