@@ -116,7 +116,7 @@ class Appl < Sinatra::Base
       else
         tree_str = SecureRandom.uuid # Generate a uniquely universal identifier for the tree
 
-        @the_tree = @tree_owner.tree.create(is_private: (access == 'private')?true:false, name: @name, id_str: tree_str, time_active: 0, priv_key: SecureRandom.hex)
+        @the_tree = @tree_owner.tree.create(is_private: (access == 'private')?true:false, name: @name, id_str: tree_str, time_active: 0, priv_key: SecureRandom.hex, last_branch_id: 1)
         @the_tree.branch.create(branch_id: 0, age: 0, parent_id: -1, anglex10: 0, factor: 0.0, sumdevx10: 0, length: 25.0, time_since_last_split: 0)
         erb :newtree
       end

@@ -1,8 +1,3 @@
-/** RUBY CODE EQUIVALENT STARTS HERE
-
-
-**/
-
 // BEGINNING OF CONSTANTS FOR TREE GROWING
 // Trees stop growing after roughly 150 years
 
@@ -75,7 +70,7 @@ function comp_prob_true(split_age, age_min, prob_scaling, rate){
 }
 
 function should_grow(split_age, age_min, prob_scaling, rate){
-  let prob = comp_prob_true(split_age,age_min,prob_scaling,rate) - comp_prob_true(split_age-1,age_min,prob_scaling,rate);
+  let prob = (comp_prob_true(split_age,age_min,prob_scaling,rate) - comp_prob_true(split_age-1,age_min,prob_scaling,rate))/(1.0-comp_prob_true(split_age-1,age_min,prob_scaling,rate));
   let rand_chance = Math.random();
   return (rand_chance < prob);
 }
@@ -106,22 +101,39 @@ class Line
     this.y1 = y1;
     this.y2 = y2;
   }
-  get x1(){
+  get_x1(){
     return this.x1;
   }
-  get x2(){
+  get_x2(){
     return this.x2;
   }
-  get y1(){
+  get_y1(){
     return this.y1;
   }
-  get y2(){
+  get_y2(){
     return this.y2;
   }
 }
 
 class Branch
 {
+  /**
+  create_table "branches", force: :cascade do |t|
+      t.integer "user_id", null: false
+      t.integer "branch_id", null: false
+      t.integer "age", null: false
+      t.integer "parent_id", null: false
+      t.integer "anglex10", default: 0, null: false
+      t.float "length", null: false
+      t.integer "sumdevx10", null: false
+      t.float "factor", null: false
+      t.integer "time_since_last_split", default: 0, null: false
+      t.integer "num_children", default: 0
+      t.integer "generation", default: 0, null: false
+      t.boolean "has_split", default: false, null: false
+      t.boolean "is_split_child", default: false, null: false
+    end
+  **/
   constructor(branch_id,age,parent_id,anglex10,length,sumdevx10,factor,time_since_last_split,num_children,generation,has_split,is_split_child)
   {
     this.branch_id = branch_id;
@@ -138,51 +150,56 @@ class Branch
     this.is_split_child = is_split_child;
   }
 
-  get branch_id(){
+  set_parent(B)
+  {
+    this.parent = B;
+  }
+
+  get_branch_id(){
     return this.branch_id;
   }
 
-  get age(){
+  get_age(){
     return this.age;
   }
 
-  get parent_id(){
+  get_parent_id(){
     return this.parent_id;
   }
 
-  get anglex10(){
+  get_anglex10(){
     return this.anglex10;
   }
 
-  get blength(){
+  get_blength(){
     return this.length;
   }
 
-  get sumdevx10(){
+  get_sumdevx10(){
     return this.sumdevx10;
   }
 
-  get factor(){
+  get_factor(){
     return this.factor;
   }
 
-  get time_since_last_split(){
+  get_time_since_last_split(){
     return this.time_since_last_split;
   }
 
-  get num_children(){
+  get_num_children(){
     return this.num_children;
   }
 
-  get generation(){
+  get_generation(){
     return this.generation;
   }
 
-  get has_split(){
+  get_has_split(){
     return this.has_split;
   }
 
-  get is_split_child(){
+  get_is_split_child(){
     return this.is_split_child;
   }
 
@@ -192,29 +209,7 @@ class Branch
   }
 
   comp_angle_max(){
-    return 10*TREE_DEV_ANGLE_MAX_BASE*(2 - Math.pow(0.5**(this.generation-1)));
-  }
-
-  compStartPoint(factor){
-    theline = this.compBranchInfo();
-    thepoint = [0,0];
-    thepoint[0] = (1-factor)*(theline.x1()) + (factor)*(theline.x2());
-    thepoint[1] = (1-factor)*(theline.y1()) + (factor)*(theline.y2());
-    return thepoint;
-  }
-
-  compBranchInfo(){
-    var startpoint = null;
-    if(this.parent_id == -1){
-      startpoint = [400,600];
-    }else{
-      startpoint = compStartPoint(this.parent_id, this.factor);
-    }
-    var len = this.length;
-    var delx = len * Math.sin(this.sumdevx10 * Math.PI / 1800.0);
-    var = -len * Math.cos(this.sumdevx10 * Math.PI / 1800.0);
-    var result_line = new Line(startpoint[0],startpoint[1],startpoint[0]+delx,startpoint[1]+dely);
-    return result_line;
+    return 10*TREE_DEV_ANGLE_MAX_BASE*(2 - Math.pow(0.5,(this.generation-1)));
   }
 
   pick_ratio(){
@@ -251,18 +246,18 @@ class Branch
     var angle_max = TREE_GROWTH_ANGLE_MAX*10;
 
     if (is_left){
-      if (branch.sumdevx10 < 0){
+      if (this.sumdevx10 < 0){
         angle_max = Math.min(TREE_GROWTH_ANGLE_MAX*10, this.comp_angle_max()+this.sumdevx10);
         angle_min = angle_max * TREE_GROWTH_ANGLE_MIN/TREE_GROWTH_ANGLE_MAX;
       }
     }else{
-      if (branch.sumdevx10 > 0){
+      if (this.sumdevx10 > 0){
         angle_max = Math.max(TREE_GROWTH_ANGLE_MAX*10, this.comp_angle_max()-this.sumdevx10);
         angle_min = angle_max * TREE_GROWTH_ANGLE_MIN/TREE_GROWTH_ANGLE_MAX
       }
     }
 
-    angle = Math.floor(Math.random(angle_max-angle_min) + angle_min);
+    var angle = Math.floor(Math.random(angle_max-angle_min) + angle_min);
     if (is_left){
       return -1 * angle;
     }else{
@@ -285,6 +280,16 @@ class Branch
   children_incr(){
     this.children += 1;
   }
+
+  toString()
+  {
+    return "Branch " + `${this.branch_id}` + ": ["
+         + "Age: " + `${this.age}`
+         + ", Parent: " + `${this.parent_id}`
+         + ", Factor: " + `${this.factor}`
+         + ", Deviation*10: " + `${this.sumdevx10}`
+         + "]";
+  }
 }
 
 class TreeGrowth
@@ -293,33 +298,59 @@ class TreeGrowth
     this.branches = branchdict;
     this.last_branch_id = last_branch_id;
   }
+  get_branches(){
+    return this.branches;
+  }
+  get_last_branch_id(){
+    return this.last_branch_id;
+  }
+  compStartPoint(B,factor){
+    var theline = this.compBranchInfo(B);
+    var thepoint = [0,0];
+    thepoint[0] = (1-factor)*(theline.get_x1()) + (factor)*(theline.get_x2());
+    thepoint[1] = (1-factor)*(theline.get_y1()) + (factor)*(theline.get_y2());
+    return thepoint;
+  }
 
+  compBranchInfo(B){
+    var startpoint = null;
+    if(B.get_parent_id() == -1){
+      startpoint = [400,600];
+    }else{
+      startpoint = this.compStartPoint(this.branches[B.get_parent_id()],B.get_factor());
+    }
+    var len = B.get_blength();
+    var delx = len * Math.sin(B.get_sumdevx10() * Math.PI / 1800.0);
+    var dely = -len * Math.cos(B.get_sumdevx10() * Math.PI / 1800.0);
+    var result_line = new Line(startpoint[0],startpoint[0]+delx,startpoint[1],startpoint[1]+dely);
+    return result_line;
+  }
   grow_tree(){
     for (var key in this.branches){
       var b = this.branches[key];
       b.increment_age();
-      if (!b.has_split()){
+      if (!b.get_has_split()){
         // Length Increase Mechanic
-        var newlen = len_expect(b.age(),b.generation());
-        var curexp = len_expect(b.age()-1, b.generation());
-        let curlen = b.blength();
+        var newlen = len_expect(b.get_age(),b.get_generation());
+        var curexp = len_expect(b.get_age()-1, b.get_generation());
+        let curlen = b.get_blength();
         let diff = normalCLT((newlen-curexp), (newlen-curexp)*LENGTH_STD_DEV_FACTOR);
         if (diff > 0){
           b.set_length(curlen + diff);
         }
         // Offshoot Mechanic
-        if should_grow(b.time_since_last_split(),
-                       TREE_GROWTH_AGE_MIN*(TREE_GROWTH_AGE_MIN_SCALE_BASE**b.generation()),
-                       TREE_SPLIT_GROWTH_PROB_SCALING, TREE_SPLIT_GROWTH_RATE){
+        if (should_grow(b.get_time_since_last_split(),
+                       TREE_GROWTH_AGE_MIN*(TREE_GROWTH_AGE_MIN_SCALE_BASE**b.get_generation()),
+                       TREE_SPLIT_GROWTH_PROB_SCALING, TREE_SPLIT_GROWTH_RATE)){
           b.reset_split();
           var is_left = true;
-          if (b.num_children() == 0){
+          if (b.get_num_children() == 0){
             var rand_chance = Math.random();
             if (rand_chance < 0.5){
               is_left = false;
             }
           }else{
-            if (b.num_children() < 0){
+            if (b.get_num_children() < 0){
               is_left = false;
             }
           }
@@ -334,12 +365,12 @@ class TreeGrowth
 
           this.last_branch_id = this.last_branch_id+1;
           //constructor(branch_id,age,parent_id,anglex10,length,sumdevx10,factor,time_since_last_split,num_children,generation,has_split,is_split_child)
-          this.braches[this.last_branch_id] =
+          this.branches[this.last_branch_id] =
             new Branch(branch_id = this.last_branch_id, age = 0,
-                       parent_id = b.branch_id(), anglex10 = newangle,
-                       length = 2.0, sumdevx10 = b.sumdevx10()+newangle,
+                       parent_id = b.get_branch_id(), anglex10 = newangle,
+                       length = 2.0, sumdevx10 = b.get_sumdevx10()+newangle,
                        factor = newratio, time_since_last_split = 0,
-                       num_children = 0, generation = b.generation()+1,
+                       num_children = 0, generation = b.get_generation()+1,
                        has_split = false, is_split_child = false);
         }
 

@@ -5,6 +5,8 @@
     <script type="text/javascript" src="/scripts/filebuttons.js"></script>
     <script type="text/javascript" src="/scripts/accountbuttons.js"></script>
     <script type="text/javascript" src="/scripts/updatetree.js"></script>
+    <script type="text/javascript" src="/scripts/treegrowth.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
   </head>
   <body>
     <div id = "mainscreen">
@@ -65,12 +67,9 @@
             branches = @the_tree.branch.all
             @branchinfo = Array.new(10000)
           %>
-            <svg width = "800px" height = "600px" id = "tree">
-              <% branches.each do |branch| %>
-                <% line = compBranchInfo(branch.branch_id) %>
-                <line x1 = "<%= line.x1 %>" y1 = "<%= line.y1 %>" x2 = "<%= line.x2 %>" y2 = "<%= line.y2 %>" style = "stroke:#654321;stroke-width:5px;" />
-              <% end %>
-            </svg>
+          <div id = 'tree'>
+            <h1>Loading tree... sit tight!</h1>
+          </div>
           <% end %>
         <% end %>
       </div>
@@ -170,20 +169,64 @@
           <% if @tree_owner.username_hash != cookies[:activeuser] %>
             <h2> You shouldn't tamper with a tree that isn't yours. </h2>
           <% else %>
+          <div id = "togrowtext">
             <h2> Select how many days you want to accelerate your tree by. </h2>
-            <form action = '/grow/<%=@the_tree.id_str%>' method = 'post'>
               <div id = "treegrowthnumholder">
                 <p>Maximum of 999</p>
-                <input type="number" name="numdays" min="1" max="999">
+                <input type="number" name="numdays" id = "num_days_grow" min="1" max="999">
                 <p>Minimum of 1</p>
               </div>
-              <button type='submit' class='confirm-button'><p>Grow Tree</p></button>
-            </form>
+              <button onclick = "incr_tree();" class='confirm-button'><p>Grow Tree</p></button>
+         </div>
           <% end %>
         <% end %>
       </div>
     </div>
     <script>
+      function update_treeview(TG)
+      {
+        $('#tree').html("");
+        var branches = TG.get_branches();
+        var treesvg = d3.select("#tree").append("svg")
+                                        .attr("id","treesvg")
+                                        .attr("width",800)
+                                        .attr("height",600);
+        for (var key in branches)
+        {
+          var l = TG.compBranchInfo(branches[key]);
+          treesvg.append("line")
+                 .attr("x1",l.get_x1())
+                 .attr("x2",l.get_x2())
+                 .attr("y1",l.get_y1())
+                 .attr("y2",l.get_y2())
+                 .attr("stroke-width",5)
+                 .attr("stroke","#654321");
+        }
+      }
+      <% if @the_tree != nil %>
+        var days_to_grow = 0;
+        var growth_interval = 50;
+        var LBID = <%= @the_tree.last_branch_id %>;
+        var BDICT = {};
+        <% @the_tree.branch.all.each do |branch| %>
+          BDICT[<%= branch.branch_id %>] = new Branch(
+            branch_id=<%= branch.branch_id %>,
+            age=<%=branch.age%>,
+            parent_id=<%=branch.parent_id%>,
+            anglex10=<%=branch.anglex10%>,
+            length=<%=branch.length%>,
+            sumdevx10=<%=branch.sumdevx10%>,
+            factor=<%=branch.factor%>,
+            time_since_last_split=<%=branch.time_since_last_split%>,
+            num_children=<%=branch.num_children%>,
+            generation=<%=branch.generation%>,
+            has_split=<%=branch.has_split%>,
+            is_split_child=<%=branch.is_split_child%>
+          );
+        <% end %>
+        var TG = new TreeGrowth(BDICT,LBID);
+        update_treeview(TG);
+      <% end %>
       $(document).click(function(event){
         $target = $(event.target);
         if($('#greybox').css("display") != "none"){
@@ -229,6 +272,38 @@
           $('#account-dropdown').css("visibility","hidden");
         }
       });
+      function block_growth(){
+        $('#togrowtext').html(
+        "<h2> Your tree is still growing! Please wait for it to finish. </h2>\n<h3> Your tree still has " + days_to_grow + " days to grow. </h3>");
+      }
+      function unblock_growth(){
+        $('#togrowtext').html('<h2> Select how many days you want to accelerate your tree by. </h2><div id = "treegrowthnumholder"><p>Maximum of 999</p><input type="number" name="numdays" id = "num_days_grow" min="1" max="999">  <p>Minimum of 1</p></div><button onclick = "incr_tree();" class="confirm-button"><p>Grow Tree</p></button>');
+      }
+
+      <% if @the_tree != nil %>
+        function check_and_grow(TG)
+        {
+          if(days_to_grow != 0){
+            days_to_grow -= 1;
+            TG.grow_tree();
+            update_treeview(TG);
+            block_growth();
+          }
+          if(days_to_grow == 0) unblock_growth();
+        }
+        window.setInterval(function(){
+          if(days_to_grow > 0) check_and_grow(TG);
+        }, growth_interval);
+      <% end %>
+
+      function incr_tree()
+      {
+        days_to_grow = $("#num_days_grow").val();
+        block_growth();
+        $("#greybox").css("display","none");
+        $("#treegrowthbox").css("display","none");
+      }
+
     </script>
   </body>
 </html>
