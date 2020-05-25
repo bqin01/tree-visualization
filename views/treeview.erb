@@ -23,6 +23,7 @@
               <ul id = "file-dropdown">
                 <li id = 'new-tree-button'><p>New Tree</p></li>
                 <li id = 'load-tree-button'><p>Load/Import Tree</p></li>
+                <li id = 'save-tree-button'><p>Save Tree</p></li>
                 <li id = 'delete-tree-button'><p style = "color: red;">Delete Tree</p></li>
               </ul>
             </div>
@@ -157,8 +158,10 @@
             <button type='submit' class='confirm-button'><p>Login!</p></button>
           </form>
         <% else %>
+        <div style = "text-align: center;">
           <h2> You're currently logged in as <%= @cuser.username %>. </h2>
-          <button class = 'confirm-button' onclick = 'window.location.href = "/logout"'><p>Logout</p></button>
+          <button class = 'confirm-button red' onclick = 'window.location.href = "/logout"'><p>Logout</p></button>
+        </div>
         <% end %>
       </div>
       <div id = "treegrowthbox" class = "notifbox">
@@ -169,20 +172,44 @@
           <% if @tree_owner.username_hash != cookies[:activeuser] %>
             <h2> You shouldn't tamper with a tree that isn't yours. </h2>
           <% else %>
-          <div id = "togrowtext">
+          <div id = "togrowtext" style = "text-align: center;">
             <h2> Select how many days you want to accelerate your tree by. </h2>
+              <div id = "nantreegrowth"></div>
               <div id = "treegrowthnumholder">
-                <p>Maximum of 999</p>
-                <input type="number" name="numdays" id = "num_days_grow" min="1" max="999">
-                <p>Minimum of 1</p>
+                <input type="number" name="numdays" id = "num_days_grow">
               </div>
               <button onclick = "incr_tree();" class='confirm-button'><p>Grow Tree</p></button>
          </div>
           <% end %>
         <% end %>
       </div>
+      <div id = "savetreebox" class = "notifbox">
+        <h1>Save Tree</h1>
+        <% if @tree_owner == nil || @the_tree == nil %>
+          <h2>There's no tree to save.</h2>
+        <% else %>
+        <div style = "text-align: center;">
+          <% if @tree_owner.username_hash != cookies[:activeuser] %>
+            <h2> You shouldn't tamper with a tree that isn't yours. </h2>
+          <% else %>
+           <div id = "savetreetext">
+            <h2> Save your tree in the database so you can come back to it later.</h2>
+            <form action = '/save/<%=@the_tree.id_str%>' method = 'update'>
+              <button onclick = "save_tree();" class='confirm-button'><p>Save Tree</p></button>
+            </form>
+           </div>
+          <% end %>
+        </div>
+        <% end %>
+      </div>
     </div>
     <script>
+      var days_to_grow = 0;
+      var growth_interval = 500;
+      function stop_grow(){
+        days_to_grow = 0;
+        unblock_growth();
+      }
       function update_treeview(TG)
       {
         $('#tree').html("");
@@ -204,8 +231,6 @@
         }
       }
       <% if @the_tree != nil %>
-        var days_to_grow = 0;
-        var growth_interval = 50;
         var LBID = <%= @the_tree.last_branch_id %>;
         var BDICT = {};
         <% @the_tree.branch.all.each do |branch| %>
@@ -256,6 +281,9 @@
         if($('#tree-forward-button').css("visibility") != "hidden" && $target.closest('#tree-forward-button').length){
           treegrowth();
         }
+        if($('#save-tree-button').css("visibility") != "hidden" && $target.closest('#save-tree-button').length){
+          savetree();
+        }
         if(!$target.closest('#file-button').length && $('#file-dropdown').is(":visible")){
           $('#file-dropdown').css("visibility","hidden");
         }
@@ -272,24 +300,39 @@
           $('#account-dropdown').css("visibility","hidden");
         }
       });
-      function block_growth(){
-        $('#togrowtext').html(
-        "<h2> Your tree is still growing! Please wait for it to finish. </h2>\n<h3> Your tree still has " + days_to_grow + " days to grow. </h3>");
-      }
-      function unblock_growth(){
-        $('#togrowtext').html('<h2> Select how many days you want to accelerate your tree by. </h2><div id = "treegrowthnumholder"><p>Maximum of 999</p><input type="number" name="numdays" id = "num_days_grow" min="1" max="999">  <p>Minimum of 1</p></div><button onclick = "incr_tree();" class="confirm-button"><p>Grow Tree</p></button>');
-      }
 
       <% if @the_tree != nil %>
+        function block_growth(){
+          $('#nantreegrowth').html('');
+          $('#togrowtext').html(
+          "<h2> Your tree is still growing! Please wait for it to finish. </h2>\n<h3> Your tree still has <div class = 'dtg'>" + days_to_grow + "</div> days to grow. </h3>"
+          +"\n<button class = 'confirm-button' style = 'background-color: red;' onclick = 'stop_grow();'><p>Terminate Growing</p></button>");
+          $('#savetreetext').html(
+          "<h2> Your tree is still growing, so you are unable to save at the moment. </h2>\n"
+          + "<h3> Your tree still has <div class = 'dtg'>" + days_to_grow + "</div> days to grow.</h3>\n"
+          + "<h2>To terminate the tree growth, try to update the tree and you will be offered the option to do so.</h2>");
+        }
+        function block_growth_mini(){
+          $('.dtg').html('' + days_to_grow);
+        }
+        function unblock_growth(){
+          $('#nantreegrowth').html('');
+          $('#togrowtext').html('<h2> Select how many days you want to accelerate your tree by. </h2><div id = "nantreegrowth"></div><div id = "treegrowthnumholder"><input type="number" name="numdays" id = "num_days_grow"></div><button onclick = "incr_tree();" class="confirm-button"><p>Grow Tree</p></button>');
+          $('#savetreetext').html(
+          "<h2> Save your tree in the database so you can come back to it later.</h2>\n"
+          + "<form action = '/save/<%=@the_tree.id_str%>' method = 'update'>\n"
+          + "<button onclick = 'save_tree();' class='confirm-button'><p>Save Tree</p></button>\n"
+          + "</form>");
+        }
         function check_and_grow(TG)
         {
           if(days_to_grow != 0){
             days_to_grow -= 1;
             TG.grow_tree();
             update_treeview(TG);
-            block_growth();
+            block_growth_mini();
           }
-          if(days_to_grow == 0) unblock_growth();
+          if(days_to_grow <= 0) unblock_growth();
         }
         window.setInterval(function(){
           if(days_to_grow > 0) check_and_grow(TG);
@@ -299,9 +342,15 @@
       function incr_tree()
       {
         days_to_grow = $("#num_days_grow").val();
-        block_growth();
-        $("#greybox").css("display","none");
-        $("#treegrowthbox").css("display","none");
+        if(days_to_grow > 10000 || days_to_grow < 1)
+        {
+          $('#nantreegrowth').html('<h3 style = "color: red;">Please input a number between 1 and 10000.</h3>');
+          days_to_grow = 0;
+        }else{
+          block_growth();
+          $("#greybox").css("display","none");
+          $("#treegrowthbox").css("display","none");
+        }
       }
 
     </script>

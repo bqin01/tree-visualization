@@ -1,7 +1,7 @@
 # Tree Visualization
 A Simulation Project by Bill Z. Qin
 
-Last Updated on January 09, 2020
+Last Updated on May 25, 2020
 
 <br>
 
@@ -31,9 +31,7 @@ If you no longer want your tree, simply be viewing the tree you want to delete a
 
 ### Growing Trees
 
-When you create a tree, you will find it to be an uninteresting sapling. If you want it to grow, simply navigate to the "Update" dropdown meny and select "Go Forward". This will allow you to select a number of days to fast-forward by, anywhere from 1 to 999. After you hit confirm, the application (while taking its time; I'm looking into improving the speed of the algorithm) will replicate and refresh the page, giving you the tree in its new state.
-
-<i><b>Note:</b> Currently, if the tree grows too many branches, it may have issues loading/growing your tree that may cause an Internal Server Error. I am looking to fix this.</i>
+When you create a tree, you will find it to be an uninteresting sapling. If you want it to grow, simply navigate to the "Update" dropdown meny and select "Go Forward". This will allow you to select a number of days to fast-forward by, anywhere from 1 to 10000. Once you confirm, the tree will start to grow right in front of you! In particular, the tree grows one day every half-second, or 500 milliseconds.
 
 ## Can I learn more about how these trees grow?
 

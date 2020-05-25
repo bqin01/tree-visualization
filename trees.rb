@@ -163,19 +163,12 @@ class Appl < Sinatra::Base
       end
     end
   end
-  post '/grow/:treestr' do
-    curtree = Tree.find_by(id_str: params[:treestr])
-    growamt = (params['numdays']).to_i
-    if curtree == nil || growamt == nil || growamt < 1 || growamt > 999 || curtree.user.username_hash != cookies[:activeuser]
-      erb :growfail
+  update '/save/:treestr' do
+    @treesave = Tree.find_by(id_str: params[:treestr])
+    if @treesave == nil
+      erb :savefail
     else
-      for i in 1..growamt do
-        grow_tree(curtree)
-      end
-      params['numdays'] = 0
-      @the_tree = curtree
-      @tree_owner = curtree.user
-      erb :treeview
+       
     end
   end
   get '/delete/:treestr' do
