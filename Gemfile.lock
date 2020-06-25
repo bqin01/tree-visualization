@@ -33,7 +33,7 @@ GEM
       mini_portile2 (~> 2.4.0)
     pg (1.1.4)
     pg (1.1.4-x64-mingw32)
-    rack (2.0.8)
+    rack (2.2.3)
     rack-protection (2.0.5)
       rack
     rake (12.3.2)
