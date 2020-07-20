@@ -194,8 +194,8 @@
           <% else %>
            <div id = "savetreetext">
             <h2> Save your tree in the database so you can come back to it later.</h2>
-            <form action = '/save/<%=@the_tree.id_str%>' method = 'update'>
-              <button onclick = "save_tree();" class='confirm-button'><p>Save Tree</p></button>
+            <form action = '/save/<%=@the_tree.id_str%>' method = 'post'>
+              <button name = "treejson" value = '{}' onclick = "save_test();" class='confirm-button'><p>Save Tree</p></button>
             </form>
            </div>
           <% end %>
@@ -205,7 +205,7 @@
     </div>
     <script>
       var days_to_grow = 0;
-      var growth_interval = 500;
+      var growth_interval = 50;
       function stop_grow(){
         days_to_grow = 0;
         unblock_growth();
@@ -251,6 +251,10 @@
         <% end %>
         var TG = new TreeGrowth(BDICT,LBID);
         update_treeview(TG);
+        function save_test()
+        {
+          console.log(TG.toJSON());
+        }
       <% end %>
       $(document).click(function(event){
         $target = $(event.target);
@@ -320,9 +324,10 @@
           $('#togrowtext').html('<h2> Select how many days you want to accelerate your tree by. </h2><div id = "nantreegrowth"></div><div id = "treegrowthnumholder"><input type="number" name="numdays" id = "num_days_grow"></div><button onclick = "incr_tree();" class="confirm-button"><p>Grow Tree</p></button>');
           $('#savetreetext').html(
           "<h2> Save your tree in the database so you can come back to it later.</h2>\n"
-          + "<form action = '/save/<%=@the_tree.id_str%>' method = 'update'>\n"
-          + "<button onclick = 'save_tree();' class='confirm-button'><p>Save Tree</p></button>\n"
-          + "</form>");
+          + "<form action = '/save/<%=@the_tree.id_str%>' method = 'post'>\n"
+          + "<button name = 'treejson' type = 'submit' value = '" + JSON.stringify(TG.toJSON()) + "' class='confirm-button'><p>Save Tree</p></button>\n"
+          + "</form>"
+      );
         }
         function check_and_grow(TG)
         {

@@ -290,6 +290,16 @@ class Branch
          + ", Deviation*10: " + `${this.sumdevx10}`
          + "]";
   }
+
+  toJSON()
+  {
+    return Object.getOwnPropertyNames(this).reduce((a,b) =>
+  {
+    a[b] = this[b];
+    return a;
+  }, {});
+  }
+
 }
 
 class TreeGrowth
@@ -378,5 +388,18 @@ class TreeGrowth
 
       }
     }
+  }
+  toJSON()
+  {
+    var j = {"last_branch_id": this.last_branch_id, "branches": []}
+    for(var key in this.branches){
+      j["branches"].push((this.branches[key]).toJSON());
+    }
+    return j;
+  }
+
+  decriptify()
+  {
+
   }
 }

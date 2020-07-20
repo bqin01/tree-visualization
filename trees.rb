@@ -163,12 +163,45 @@ class Appl < Sinatra::Base
       end
     end
   end
-  update '/save/:treestr' do
+  post '/save/:treestr' do
     @treesave = Tree.find_by(id_str: params[:treestr])
-    if @treesave == nil
+    if @treesave == nil || @treesave.user.username_hash != cookies[:activeuser]
       erb :savefail
     else
-       
+      jsondata = JSON.parse(params[:treejson])
+      @treesave.update(is_private: @treesave.is_private, name: @treesave.name, id_str: @treesave.id_str, time_active: @treesave.time_active, priv_key: @treesave.priv_key, last_branch_id: jsondata["last_branch_id"])
+      jsondata["branches"].each do |b|
+        exist_branch = @treesave.branch.find_by(branch_id: b["branch_id"].to_i)
+        if exist_branch == nil
+          @treesave.branch.create(branch_id: b["branch_id"],
+            age: b["age"],
+            parent_id: b["parent_id"],
+            anglex10: b["anglex10"],
+            length: b["length"],
+            sumdevx10: b["sumdevx10"],
+            factor: b["factor"],
+            time_since_last_split: b["time_since_last_split"],
+            num_children: b["time_since_last_split"],
+            generation: b["generation"],
+            has_split: b["has_split"],
+            is_split_child: b["is_split_child"]
+         )
+        else
+          exist_branch.update(branch_id: b["branch_id"],
+            age: b["age"],
+            parent_id: b["parent_id"],
+            anglex10: b["anglex10"],
+            length: b["length"],
+            sumdevx10: b["sumdevx10"],
+            factor: b["factor"],
+            time_since_last_split: b["time_since_last_split"],
+            num_children: b["time_since_last_split"],
+            generation: b["generation"],
+            has_split: b["has_split"],
+            is_split_child: b["is_split_child"])
+        end
+      end
+      erb :savesucc
     end
   end
   get '/delete/:treestr' do
